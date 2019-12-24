@@ -1,0 +1,12 @@
+services:
+
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: true
+
+  Drift\Bus\Tests\Middleware\:
+    resource: 'Middleware/.'
+
+  Drift\Bus\Tests\QueryHandler\:
+    resource: 'QueryHandler/.'

@@ -1,0 +1,29 @@
+{
+  "name": "drift/bus-bundle",
+  "type": "library",
+  "license": "MIT",
+
+  "require": {
+    "php": "^7.2",
+    "mmoreram/base-bundle": "*",
+    "league/tactician": "*",
+    "clue/block-react": "*",
+    "symfony/console":  "*"
+  },
+
+  "require-dev": {
+    "drift/redis-bundle": "*"
+  },
+
+  "autoload": {
+    "psr-4": {
+      "Drift\\Bus\\": ""
+    }
+  },
+
+  "autoload-dev": {
+    "psr-4": {
+      "Drift\\Bus\\Tests\\": "Tests/"
+    }
+  }
+}
