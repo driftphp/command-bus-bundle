@@ -1,5 +1,18 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
+
 namespace Drift\Bus\Tests;
 
 use Drift\Bus\Tests\Command\ChangeAThing;
@@ -9,7 +22,7 @@ use Drift\Bus\Tests\Middleware\Middleware3;
 use function Clue\React\Block\await;
 
 /**
- * Class AsyncTest
+ * Class AsyncTest.
  */
 class AsyncTest extends BusFunctionalTest
 {
@@ -27,7 +40,7 @@ class AsyncTest extends BusFunctionalTest
             'tags' => [
                 ['name' => 'command_handler', 'method' => 'handle'],
                 ['name' => 'another_tag', 'method' => 'anotherMethod'],
-            ]
+            ],
         ];
 
         $configuration['imports'] = [
@@ -37,21 +50,21 @@ class AsyncTest extends BusFunctionalTest
         $configuration['bus'] = [
             'command_bus' => [
                 'async_adapter' => [
-                    'in_memory' => []
+                    'in_memory' => [],
                 ],
                 'middlewares' => [
-                    Middleware1::class . '::anotherMethod',
+                    Middleware1::class.'::anotherMethod',
                     '@async',
-                    Middleware3::class
-                ]
-            ]
+                    Middleware3::class,
+                ],
+            ],
         ];
 
         return $configuration;
     }
 
     /**
-     * Test buses are being built
+     * Test buses are being built.
      *
      * @group async
      */

@@ -1,5 +1,17 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
 
 namespace Drift\Bus\Async;
 
@@ -11,7 +23,7 @@ use React\Promise\PromiseInterface;
 use React\Stream\WritableStreamInterface;
 
 /**
- * Class FilesystemAdapter
+ * Class FilesystemAdapter.
  */
 class FilesystemAdapter implements AsyncAdapter
 {
@@ -34,22 +46,21 @@ class FilesystemAdapter implements AsyncAdapter
      * FilesystemAdapter constructor.
      *
      * @param LoopInterface $loop
-     * @param Filesystem $filesystem
-     * @param string $filename
+     * @param Filesystem    $filesystem
+     * @param string        $filename
      */
     public function __construct(
         LoopInterface $loop,
         Filesystem $filesystem,
         string $filename
-    )
-    {
+    ) {
         $this->loop = $loop;
         $this->filesystem = $filesystem;
         $this->filename = $filename;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function enqueue($command): PromiseInterface
     {
@@ -57,25 +68,24 @@ class FilesystemAdapter implements AsyncAdapter
             ->filesystem
             ->file($this->filename)
             ->open('a')
-            ->then(function(WritableStreamInterface $stream) use ($command) {
+            ->then(function (WritableStreamInterface $stream) use ($command) {
                 $stream->write(serialize($command));
                 $stream->close();
             });
     }
 
     /**
-     * Consume
+     * Consume.
      *
      * @param CommandBus $bus
-     * @param int $limit
-     * @param Callable $printCommandConsumed
+     * @param int        $limit
+     * @param callable   $printCommandConsumed
      */
     public function consume(
         CommandBus $bus,
         int $limit,
-        Callable $printCommandConsumed = null
-    )
-    {
+        callable $printCommandConsumed = null
+    ) {
         $handler = fopen($this->filename, 'r');
 
         while (true) {

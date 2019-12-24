@@ -1,5 +1,18 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
+
 namespace Drift\Bus\DependencyInjection\CompilerPass;
 
 use Drift\Bus\Adapter\TacticianBus;
@@ -8,25 +21,25 @@ use Drift\Bus\Async\InMemoryAdapter;
 use Drift\Bus\Async\RedisAdapter;
 use Drift\Bus\AsyncAdapter;
 use Drift\Bus\AsyncMiddleware;
-use Drift\Bus\Console\CommandConsumer;
-use Drift\Bus\Middleware\Middleware;
-use ReflectionClass;
 use Drift\Bus\CommandBus;
+use Drift\Bus\Console\CommandConsumer;
 use Drift\Bus\Middleware\HandlerMiddleware;
+use Drift\Bus\Middleware\Middleware;
 use Drift\Bus\QueryBus;
 use League\Tactician\CommandBus as TacticianCommandBus;
+use ReflectionClass;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Class BusCompilerPass
+ * Class BusCompilerPass.
  */
 class BusCompilerPass implements CompilerPassInterface
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function process(ContainerBuilder $container)
     {
@@ -47,7 +60,6 @@ class BusCompilerPass implements CompilerPassInterface
         $this->createInlineCommandBus($container);
     }
 
-
     /**
      * Check for async middleware needs and return if has been created.
      *
@@ -55,7 +67,7 @@ class BusCompilerPass implements CompilerPassInterface
      *
      * @return bool
      */
-    public function createAsyncMiddleware(ContainerBuilder $container) : bool
+    public function createAsyncMiddleware(ContainerBuilder $container): bool
     {
         $asyncAdapters = $container->getParameter('bus.command_bus.async_adapter');
         if (false === $asyncAdapters) {
@@ -65,7 +77,7 @@ class BusCompilerPass implements CompilerPassInterface
         $adapterType = array_key_first($asyncAdapters);
         $adapter = $asyncAdapters[$adapterType];
 
-        switch($adapterType) {
+        switch ($adapterType) {
             case 'filesystem':
                 $this->createFilesystemAsyncAdapter($container, $adapter);
                 break;
@@ -80,16 +92,16 @@ class BusCompilerPass implements CompilerPassInterface
         $container->setDefinition(AsyncMiddleware::class,
             new Definition(
                 AsyncMiddleware::class, [
-                    new Reference(AsyncAdapter::class)
+                    new Reference(AsyncAdapter::class),
                 ]
             )
         );
 
-        $container->setDefinition(AsyncMiddleware::class . '\Wrapper',
+        $container->setDefinition(AsyncMiddleware::class.'\Wrapper',
             new Definition(
                 Middleware::class, [
                     new Reference(AsyncMiddleware::class),
-                    'execute'
+                    'execute',
                 ]
             )
         );
@@ -98,7 +110,7 @@ class BusCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * Create query bus
+     * Create query bus.
      *
      * @param ContainerBuilder $container
      */
@@ -106,14 +118,14 @@ class BusCompilerPass implements CompilerPassInterface
     {
         $container->setDefinition('drift.query_bus', new Definition(
             QueryBus::class, [
-                new Reference('drift.query_bus.adapter')
+                new Reference('drift.query_bus.adapter'),
             ]
         ));
         $container->setAlias(QueryBus::class, 'drift.query_bus');
     }
 
     /**
-     * Create command bus
+     * Create command bus.
      *
      * @param ContainerBuilder $container
      */
@@ -121,14 +133,14 @@ class BusCompilerPass implements CompilerPassInterface
     {
         $container->setDefinition('drift.command_bus', new Definition(
             CommandBus::class, [
-                new Reference('drift.command_bus.adapter')
+                new Reference('drift.command_bus.adapter'),
             ]
         ));
         $container->setAlias(CommandBus::class, 'drift.command_bus');
     }
 
     /**
-     * Create command bus
+     * Create command bus.
      *
      * @param ContainerBuilder $container
      */
@@ -136,18 +148,18 @@ class BusCompilerPass implements CompilerPassInterface
     {
         $container->setDefinition('drift.inline_command_bus', new Definition(
             CommandBus::class, [
-                new Reference('drift.inline_command_bus.adapter')
+                new Reference('drift.inline_command_bus.adapter'),
             ]
         ));
         $container->setAlias(CommandBus::class, 'drift.inline_command_bus');
     }
 
     /**
-     * Create array of middlewares by configuration
+     * Create array of middlewares by configuration.
      *
      * @param ContainerBuilder $container
-     * @param string $type
-     * @param bool $isAsync
+     * @param string           $type
+     * @param bool             $isAsync
      *
      * @return array
      */
@@ -155,14 +167,12 @@ class BusCompilerPass implements CompilerPassInterface
         ContainerBuilder $container,
         string $type,
         bool $isAsync = false
-    )
-    {
+    ) {
         $middlewares = [];
         $asyncMiddlewareFound = false;
-        $asyncMiddlewareId = AsyncMiddleware::class . '\Wrapper';
+        $asyncMiddlewareId = AsyncMiddleware::class.'\Wrapper';
 
         foreach ($container->getParameter("bus.{$type}_bus.middlewares") as $middleware) {
-
             if ('@async' === $middleware) {
                 if (
                     true === $isAsync &&
@@ -176,8 +186,8 @@ class BusCompilerPass implements CompilerPassInterface
             }
 
             $method = 'execute';
-            $splitted = explode('::', $middleware,2);
-            if (2 === count($splitted )) {
+            $splitted = explode('::', $middleware, 2);
+            if (2 === count($splitted)) {
                 $middleware = $splitted[0];
                 $method = $splitted[1];
             }
@@ -189,7 +199,7 @@ class BusCompilerPass implements CompilerPassInterface
             $middlewareWrapperName = "{$middleware}\\Wrapper";
             $middlewareWrapper = new Definition(Middleware::class, [
                 new Reference($middleware),
-                $method
+                $method,
             ]);
 
             $container->setDefinition($middlewareWrapperName, $middlewareWrapper);
@@ -202,13 +212,13 @@ class BusCompilerPass implements CompilerPassInterface
             $handlerMap = $this->createHandlersMap($container, "{$type}_handler");
             foreach ($handlerMap as $command => list($reference, $method)) {
                 $handlerMiddleware->addMethodCall('addHandler', [
-                    $command, $reference, $method
+                    $command, $reference, $method,
                 ]);
             }
             $container->setDefinition($handlerMiddlewareId, $handlerMiddleware);
         }
 
-        $middlewares[] =  new Reference($handlerMiddlewareId);
+        $middlewares[] = new Reference($handlerMiddlewareId);
 
         if (
             true === $isAsync &&
@@ -221,21 +231,18 @@ class BusCompilerPass implements CompilerPassInterface
         return $middlewares;
     }
 
-
-
     /**
-     * Create handlers map
+     * Create handlers map.
      *
      * @param ContainerBuilder $container
-     * @param string $tag
+     * @param string           $tag
      *
      * @return array
      */
     private function createHandlersMap(
         ContainerBuilder $container,
         string $tag
-    ) : array
-    {
+    ): array {
         $handlers = $container->findTaggedServiceIds($tag);
         $handlersMap = [];
         foreach ($handlers as $serviceId => $handler) {
@@ -250,7 +257,7 @@ class BusCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * Create command consumer
+     * Create command consumer.
      *
      * @param ContainerBuilder $container
      */
@@ -263,20 +270,18 @@ class BusCompilerPass implements CompilerPassInterface
         ]);
 
         $consumer->addTag('console.command', [
-            'command' => 'bus:consume-commands'
+            'command' => 'bus:consume-commands',
         ]);
 
         $container->setDefinition(CommandConsumer::class, $consumer);
     }
 
     /**
-     *
-     * Tactician
-     *
+     * Tactician.
      */
 
     /**
-     * Create tactician query bus adapter
+     * Create tactician query bus adapter.
      *
      * @param ContainerBuilder $container
      */
@@ -289,7 +294,7 @@ class BusCompilerPass implements CompilerPassInterface
                     $this->createMiddlewaresArray(
                         $container,
                         'query'
-                    )
+                    ),
                 ]
             )
         );
@@ -298,24 +303,23 @@ class BusCompilerPass implements CompilerPassInterface
             'drift.query_bus.adapter',
             new Definition(
                 TacticianBus::class, [
-                    new Reference('tactician.query_bus')
+                    new Reference('tactician.query_bus'),
                 ]
             )
         );
     }
 
     /**
-     * Create tactician command bus adapter
+     * Create tactician command bus adapter.
      *
      * @param ContainerBuilder $container
-     * @param bool $isAsync
+     * @param bool             $isAsync
      */
     public function createTacticianCommandBusAdapter(
         ContainerBuilder $container,
         string $prefix = '',
         bool $isAsync = false
-    )
-    {
+    ) {
         $container->setDefinition(
             "tactician.{$prefix}command_bus",
             new Definition(
@@ -324,7 +328,7 @@ class BusCompilerPass implements CompilerPassInterface
                         $container,
                         'command',
                         $isAsync
-                    )
+                    ),
                 ]
             )
         );
@@ -333,43 +337,40 @@ class BusCompilerPass implements CompilerPassInterface
             "drift.{$prefix}command_bus.adapter",
             new Definition(
                 TacticianBus::class, [
-                    new Reference("tactician.{$prefix}command_bus")
+                    new Reference("tactician.{$prefix}command_bus"),
                 ]
             )
         );
     }
 
     /**
-     *
-     * ADAPTERS
-     *
+     * ADAPTERS.
      */
 
     /**
-     * Create filesystem async adapter
+     * Create filesystem async adapter.
      *
      * @param ContainerBuilder $container
-     * @param array $adapter
+     * @param array            $adapter
      */
     private function createFilesystemAsyncAdapter(
         ContainerBuilder $container,
         array $adapter
-    )
-    {
+    ) {
         $container->setDefinition(
             AsyncAdapter::class,
             new Definition(
                 FilesystemAdapter::class, [
                     new Reference('reactphp.event_loop'),
                     new Reference('drift.filesystem'),
-                    $adapter['file']
+                    $adapter['file'],
                 ]
             )
         );
     }
 
     /**
-     * Create in_memory async adapter
+     * Create in_memory async adapter.
      *
      * @param ContainerBuilder $container
      */
@@ -382,22 +383,21 @@ class BusCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * Create redis async adapter
+     * Create redis async adapter.
      *
      * @param ContainerBuilder $container
-     * @param array $adapter
+     * @param array            $adapter
      */
     private function createRedisAsyncAdapter(
         ContainerBuilder $container,
         array $adapter
-    )
-    {
+    ) {
         $container->setDefinition(
             AsyncAdapter::class,
             new Definition(RedisAdapter::class, [
-                new Reference('redis.' . $adapter['client'] . '_client'),
+                new Reference('redis.'.$adapter['client'].'_client'),
                 new Reference('reactphp.event_loop'),
-                $adapter['key'] ?? 'commands'
+                $adapter['key'] ?? 'commands',
             ])
         );
     }

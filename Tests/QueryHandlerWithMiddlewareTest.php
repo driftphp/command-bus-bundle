@@ -1,5 +1,18 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
+
 namespace Drift\Bus\Tests;
 
 use Drift\Bus\Tests\Middleware\Middleware1;
@@ -11,7 +24,7 @@ use Drift\Bus\Tests\QueryHandler\GetAThingHandler;
 use function Clue\React\Block\await;
 
 /**
- * Class QueryHandlerWithMiddleware
+ * Class QueryHandlerWithMiddleware.
  */
 class QueryHandlerWithMiddleware extends BusFunctionalTest
 {
@@ -28,13 +41,13 @@ class QueryHandlerWithMiddleware extends BusFunctionalTest
         $configuration['services'][GetAThingHandler::class] = [
             'tags' => [
                 ['name' => 'query_handler'],
-            ]
+            ],
         ];
 
         $configuration['services'][GetAnotherThingHandler::class] = [
             'tags' => [
                 ['name' => 'query_handler', 'method' => 'another'],
-            ]
+            ],
         ];
 
         $configuration['imports'] = [
@@ -44,17 +57,17 @@ class QueryHandlerWithMiddleware extends BusFunctionalTest
         $configuration['bus'] = [
             'query_bus' => [
                 'middlewares' => [
-                    Middleware1::class . '::anotherMethod',
-                    Middleware2::class
-                ]
-            ]
+                    Middleware1::class.'::anotherMethod',
+                    Middleware2::class,
+                ],
+            ],
         ];
 
         return $configuration;
     }
 
     /**
-     * Test AThing
+     * Test AThing.
      */
     public function testAThing()
     {
@@ -68,7 +81,7 @@ class QueryHandlerWithMiddleware extends BusFunctionalTest
     }
 
     /**
-     * Test AThing
+     * Test AThing.
      */
     public function testAnotherThing()
     {

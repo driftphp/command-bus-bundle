@@ -1,11 +1,24 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
+
 namespace Drift\Bus\Tests\Middleware;
 
 use Drift\Bus\Tests\Context;
 
 /**
- * Class Middleware1
+ * Class Middleware1.
  */
 class Middleware1
 {
@@ -24,16 +37,13 @@ class Middleware1
         $this->context = $context;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function anotherMethod($command, callable $next)
     {
         return $next($command)
-            ->then(function($value) {
+            ->then(function ($value) {
                 $this->context->values['middleware1'] = true;
 
-                return $value . ' changed';
+                return $value.' changed';
             });
     }
 }

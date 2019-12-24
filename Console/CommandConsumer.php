@@ -1,5 +1,17 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
 
 namespace Drift\Bus\Console;
 
@@ -12,7 +24,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class CommandConsumer
+ * Class CommandConsumer.
  */
 class CommandConsumer extends Command
 {
@@ -34,16 +46,15 @@ class CommandConsumer extends Command
     /**
      * ConsumeCommand constructor.
      *
-     * @param AsyncAdapter $asyncAdapter
-     * @param CommandBus $commandBus
+     * @param AsyncAdapter  $asyncAdapter
+     * @param CommandBus    $commandBus
      * @param LoopInterface $loop
      */
     public function __construct(
         AsyncAdapter $asyncAdapter,
         CommandBus $commandBus,
         LoopInterface $loop
-    )
-    {
+    ) {
         parent::__construct();
 
         $this->asyncAdapter = $asyncAdapter;
@@ -82,7 +93,7 @@ class CommandConsumer extends Command
             ->consume(
                 $this->commandBus,
                 $input->getOption('limit'),
-                function($command) use ($output) {
+                function ($command) use ($output) {
                     $commandNamespace = get_class($command);
                     $commandParts = explode('\\', $commandNamespace);
                     $commandClass = end($commandParts);

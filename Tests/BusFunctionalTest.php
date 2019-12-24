@@ -1,5 +1,18 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
+
 namespace Drift\Bus\Tests;
 
 use Drift\Bus\BusBundle;
@@ -13,7 +26,7 @@ use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
- * Class BusFunctionalTest
+ * Class BusFunctionalTest.
  */
 abstract class BusFunctionalTest extends BaseFunctionalTest
 {
@@ -48,11 +61,11 @@ abstract class BusFunctionalTest extends BaseFunctionalTest
                 ],
 
                 'drift.command_bus.test' => [
-                    'alias' => 'drift.command_bus'
+                    'alias' => 'drift.command_bus',
                 ],
 
                 'drift.query_bus.test' => [
-                    'alias' => 'drift.query_bus'
+                    'alias' => 'drift.query_bus',
                 ],
             ],
         ];
@@ -113,37 +126,37 @@ abstract class BusFunctionalTest extends BaseFunctionalTest
     }
 
     /**
-     * Get command bus
+     * Get command bus.
      *
      * @return CommandBus
      */
-    protected function getCommandBus() : CommandBus
+    protected function getCommandBus(): CommandBus
     {
         return $this->get('drift.command_bus.test');
     }
 
     /**
-     * Get query bus
+     * Get query bus.
      *
      * @return QueryBus
      */
-    protected function getQueryBus() : QueryBus
+    protected function getQueryBus(): QueryBus
     {
         return $this->get('drift.query_bus.test');
     }
 
     /**
-     * Get loop
+     * Get loop.
      *
      * @return LoopInterface
      */
-    protected function getLoop() : LoopInterface
+    protected function getLoop(): LoopInterface
     {
         return $this->get('reactphp.event_loop');
     }
 
     /**
-     * Get context value
+     * Get context value.
      *
      * @param string $value
      *

@@ -1,14 +1,27 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
+
 namespace Drift\Bus\Middleware;
 
 use Drift\Bus\Exception\MissingHandlerException;
+use League\Tactician\Middleware as BaseMiddleware;
 use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
-use League\Tactician\Middleware as BaseMiddleware;
 
 /**
- * Class HandlerMiddleware
+ * Class HandlerMiddleware.
  */
 class HandlerMiddleware implements BaseMiddleware
 {
@@ -18,7 +31,7 @@ class HandlerMiddleware implements BaseMiddleware
     private $handlersMap = [];
 
     /**
-     * Add handler
+     * Add handler.
      *
      * @param string $commandNamespace
      * @param object $handler
@@ -28,13 +41,12 @@ class HandlerMiddleware implements BaseMiddleware
         string $commandNamespace,
         object $handler,
         string $method
-    )
-    {
+    ) {
         $this->handlersMap[$commandNamespace] = [$handler, $method];
     }
 
     /**
-     * Handle
+     * Handle.
      *
      * @param object   $command
      * @param callable $next

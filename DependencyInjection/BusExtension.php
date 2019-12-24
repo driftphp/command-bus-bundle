@@ -1,7 +1,19 @@
 <?php
 
-namespace Drift\Bus\DependencyInjection;
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
 
+declare(strict_types=1);
+
+namespace Drift\Bus\DependencyInjection;
 
 use Mmoreram\BaseBundle\DependencyInjection\BaseExtension;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -9,7 +21,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 class BusExtension extends BaseExtension
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getAlias()
     {
@@ -52,7 +64,7 @@ class BusExtension extends BaseExtension
             'bus.adapter' => $config['adapter'],
             'bus.query_bus.middlewares' => $config['query_bus']['middlewares'],
             'bus.command_bus.middlewares' => $config['command_bus']['middlewares'],
-            'bus.command_bus.async_adapter' => $config['command_bus']['async_adapter'] ?? false
+            'bus.command_bus.async_adapter' => $config['command_bus']['async_adapter'] ?? false,
         ];
     }
 }

@@ -1,17 +1,29 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
 
 namespace Drift\Bus\Async;
 
 use Clue\React\Redis\Client;
 use Drift\Bus\AsyncAdapter;
 use Drift\Bus\CommandBus;
+use function Clue\React\Block\await;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
-use function Clue\React\Block\await;
 
 /**
- * Class RedisAdapter
+ * Class RedisAdapter.
  */
 class RedisAdapter implements AsyncAdapter
 {
@@ -33,23 +45,22 @@ class RedisAdapter implements AsyncAdapter
     /**
      * RedisAdapter constructor.
      *
-     * @param Client $redis
+     * @param Client        $redis
      * @param LoopInterface $loop
-     * @param string $key
+     * @param string        $key
      */
     public function __construct(
         Client $redis,
         LoopInterface $loop,
         string $key
-    )
-    {
+    ) {
         $this->redis = $redis;
         $this->loop = $loop;
         $this->key = $key;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function enqueue($command): PromiseInterface
     {
@@ -59,25 +70,23 @@ class RedisAdapter implements AsyncAdapter
     }
 
     /**
-     * Consume
+     * Consume.
      *
      * @param CommandBus $bus
-     * @param int $limit
-     * @param Callable $printCommandConsumed
+     * @param int        $limit
+     * @param callable   $printCommandConsumed
      */
     public function consume(
         CommandBus $bus,
         int $limit,
-        Callable $printCommandConsumed = null
-    )
-    {
+        callable $printCommandConsumed = null
+    ) {
         $iterations = 0;
         while (true) {
-
             $promise = $this
                 ->redis
                 ->blPop($this->key, 0)
-                ->then(function(array $job) use ($bus, $printCommandConsumed) {
+                ->then(function (array $job) use ($bus, $printCommandConsumed) {
                     $command = unserialize($job[1]);
                     $bus->execute($command);
 
@@ -89,7 +98,7 @@ class RedisAdapter implements AsyncAdapter
             await($promise, $this->loop);
 
             if (self::UNLIMITED !== $limit) {
-                $iterations++;
+                ++$iterations;
                 if ($iterations >= $limit) {
                     return;
                 }

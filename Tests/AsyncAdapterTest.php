@@ -1,5 +1,18 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
+
 namespace Drift\Bus\Tests;
 
 use Drift\Bus\Tests\Command\ChangeAThing;
@@ -8,7 +21,7 @@ use Drift\Bus\Tests\Middleware\Middleware1;
 use function Clue\React\Block\await;
 
 /**
- * Class AsyncAdapterTest
+ * Class AsyncAdapterTest.
  */
 abstract class AsyncAdapterTest extends BusFunctionalTest
 {
@@ -26,7 +39,7 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
             'tags' => [
                 ['name' => 'command_handler', 'method' => 'handle'],
                 ['name' => 'another_tag', 'method' => 'anotherMethod'],
-            ]
+            ],
         ];
 
         $configuration['imports'] = [
@@ -37,8 +50,8 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
             'command_bus' => [
                 'async_adapter' => static::getAsyncConfiguration(),
                 'middlewares' => [
-                    Middleware1::class . '::anotherMethod',
-                ]
+                    Middleware1::class.'::anotherMethod',
+                ],
             ],
         ];
 
@@ -46,14 +59,14 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
     }
 
     /**
-     * Get async configuration
+     * Get async configuration.
      *
      * @return array
      */
-    abstract static protected function getAsyncConfiguration() : array;
+    abstract protected static function getAsyncConfiguration(): array;
 
     /**
-     * Test buses are being built
+     * Test buses are being built.
      *
      * @group async
      */

@@ -1,5 +1,18 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
+
 namespace Drift\Bus\Tests;
 
 use Drift\Bus\Exception\MissingHandlerException;
@@ -7,7 +20,7 @@ use Drift\Bus\Tests\Command\ChangeAThing;
 use Drift\Bus\Tests\QueryHandler\GetAThingHandler;
 
 /**
- * Class QueryHandlerNotExistsTest
+ * Class QueryHandlerNotExistsTest.
  */
 class QueryHandlerNotExistsTest extends BusFunctionalTest
 {
@@ -23,15 +36,15 @@ class QueryHandlerNotExistsTest extends BusFunctionalTest
         $configuration['services'][Context::class] = [];
         $configuration['services'][GetAThingHandler::class] = [
             'tags' => [
-                ['name' => 'query_handler', 'method' => 'handle']
-            ]
+                ['name' => 'query_handler', 'method' => 'handle'],
+            ],
         ];
 
         return $configuration;
     }
 
     /**
-     * Test buses are being built
+     * Test buses are being built.
      */
     public function testQueryBus()
     {

@@ -1,11 +1,24 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
+
 namespace Drift\Bus;
 
 use React\Promise\PromiseInterface;
 
 /**
- * Class CommandBus
+ * Class CommandBus.
  */
 class CommandBus
 {
@@ -25,18 +38,18 @@ class CommandBus
     }
 
     /**
-     * Execute command
+     * Execute command.
      *
-     * @param Object $query
+     * @param object $query
      *
      * @return PromiseInterface
      */
-    public function execute($query) : PromiseInterface
+    public function execute($query): PromiseInterface
     {
         return $this
             ->bus
             ->handle($query)
-            ->then(function() {
+            ->then(function () {
                 return;
             });
     }

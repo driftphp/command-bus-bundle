@@ -1,11 +1,24 @@
 <?php
 
+/*
+ * This file is part of the DriftPHP Project
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ */
+
+declare(strict_types=1);
+
 namespace Drift\Bus\Tests\Middleware;
 
 use Drift\Bus\Tests\Context;
 
 /**
- * Class Middleware3
+ * Class Middleware3.
  */
 class Middleware3
 {
@@ -24,13 +37,10 @@ class Middleware3
         $this->context = $context;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function execute($command, callable $next)
     {
         return $next($command)
-            ->then(function($value) {
+            ->then(function ($value) {
                 $this->context->values['middleware3'] = true;
 
                 return $value;
