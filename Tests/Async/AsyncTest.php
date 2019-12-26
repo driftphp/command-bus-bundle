@@ -46,7 +46,7 @@ class AsyncTest extends BusFunctionalTest
         ];
 
         $configuration['imports'] = [
-            ['resource' => __DIR__ . '/../autowiring.yml'],
+            ['resource' => __DIR__.'/../autowiring.yml'],
         ];
 
         $configuration['bus'] = [

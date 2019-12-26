@@ -18,7 +18,7 @@ namespace Drift\Bus\Exception;
 use Exception;
 
 /**
- * Class InvalidMiddlewareException
+ * Class InvalidMiddlewareException.
  */
 final class InvalidMiddlewareException extends Exception
 {

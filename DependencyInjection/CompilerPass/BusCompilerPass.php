@@ -15,17 +15,17 @@ declare(strict_types=1);
 
 namespace Drift\Bus\DependencyInjection\CompilerPass;
 
+use Drift\Bus\Async\AsyncAdapter;
 use Drift\Bus\Async\InMemoryAdapter;
 use Drift\Bus\Async\RedisAdapter;
-use Drift\Bus\Async\AsyncAdapter;
+use Drift\Bus\Bus\CommandBus;
 use Drift\Bus\Bus\InlineCommandBus;
+use Drift\Bus\Bus\QueryBus;
+use Drift\Bus\Console\CommandConsumer;
 use Drift\Bus\Exception\InvalidMiddlewareException;
 use Drift\Bus\Middleware\AsyncMiddleware;
-use Drift\Bus\Bus\CommandBus;
-use Drift\Bus\Console\CommandConsumer;
 use Drift\Bus\Middleware\HandlerMiddleware;
 use Drift\Bus\Middleware\Middleware;
-use Drift\Bus\Bus\QueryBus;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -116,7 +116,7 @@ class BusCompilerPass implements CompilerPassInterface
                     $container,
                     'query',
                     false
-                )
+                ),
             ]
         ));
 
@@ -127,20 +127,19 @@ class BusCompilerPass implements CompilerPassInterface
      * Create command bus.
      *
      * @param ContainerBuilder $container
-     * @param bool $asyncBus
+     * @param bool             $asyncBus
      */
     public function createCommandBus(
         ContainerBuilder $container,
         bool $asyncBus
-    )
-    {
+    ) {
         $container->setDefinition('drift.command_bus', new Definition(
             CommandBus::class, [
                 $this->createMiddlewaresArray(
                     $container,
                     'command',
                     $asyncBus
-                )
+                ),
             ]
         ));
 
@@ -160,7 +159,7 @@ class BusCompilerPass implements CompilerPassInterface
                     $container,
                     'command',
                     false
-                )
+                ),
             ]
         ));
 

@@ -15,10 +15,10 @@ declare(strict_types=1);
 
 namespace Drift\Bus\Tests\Middleware;
 
-use RuntimeException;
 use Drift\Bus\Tests\BusFunctionalTest;
 use Drift\Bus\Tests\CommandHandler\ChangeAThingHandler;
 use Drift\Bus\Tests\Context;
+use RuntimeException;
 
 /**
  * Class BadMiddlewareExceptionTest.

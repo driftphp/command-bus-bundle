@@ -51,9 +51,6 @@ class Middleware
         $this->method = $method;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function execute($command, callable $next)
     {
         $result = $this

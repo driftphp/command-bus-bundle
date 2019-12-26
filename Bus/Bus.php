@@ -36,7 +36,7 @@ abstract class Bus
     }
 
     /**
-     * Executes the given command and optionally returns a value
+     * Executes the given command and optionally returns a value.
      *
      * @param object $command
      *
@@ -54,7 +54,7 @@ abstract class Bus
     }
 
     /**
-     * Create execution chain
+     * Create execution chain.
      *
      * @param array $middlewareList
      *
@@ -65,7 +65,6 @@ abstract class Bus
         $lastCallable = function () {};
 
         while ($middleware = array_pop($middlewareList)) {
-
             $lastCallable = function ($command) use ($middleware, $lastCallable) {
                 return $middleware->execute($command, $lastCallable);
             };
