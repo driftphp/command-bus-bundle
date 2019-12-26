@@ -13,22 +13,13 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus;
+namespace Drift\Bus\Exception;
 
-use React\Promise\PromiseInterface;
+use Exception;
 
 /**
- * Interface Bus.
+ * Class InvalidMiddlewareException
  */
-interface Bus
+final class InvalidMiddlewareException extends Exception
 {
-    /**
-     * Handle.
-     *
-     * @param object $object
-     * @param
-     *
-     * @return PromiseInterface
-     */
-    public function handle($object): PromiseInterface;
 }

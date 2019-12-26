@@ -13,10 +13,12 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests;
+namespace Drift\Bus\Tests\Bus;
 
 use Drift\Bus\Exception\MissingHandlerException;
+use Drift\Bus\Tests\BusFunctionalTest;
 use Drift\Bus\Tests\Command\ChangeAThing;
+use Drift\Bus\Tests\Context;
 use Drift\Bus\Tests\QueryHandler\GetAThingHandler;
 
 /**

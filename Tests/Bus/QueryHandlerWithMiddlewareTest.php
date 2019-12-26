@@ -13,8 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests;
+namespace Drift\Bus\Tests\Bus;
 
+use Drift\Bus\Tests\BusFunctionalTest;
+use Drift\Bus\Tests\Context;
 use Drift\Bus\Tests\Middleware\Middleware1;
 use Drift\Bus\Tests\Middleware\Middleware2;
 use Drift\Bus\Tests\Query\GetAnotherThing;
@@ -51,7 +53,7 @@ class QueryHandlerWithMiddleware extends BusFunctionalTest
         ];
 
         $configuration['imports'] = [
-            ['resource' => __DIR__.'/autowiring.yml'],
+            ['resource' => __DIR__ . '/../autowiring.yml'],
         ];
 
         $configuration['bus'] = [

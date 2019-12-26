@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests;
+namespace Drift\Bus\Tests\Async;
 
 use Drift\Redis\RedisBundle;
 

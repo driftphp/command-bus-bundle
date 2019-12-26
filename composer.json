@@ -6,7 +6,6 @@
   "require": {
     "php": "^7.2",
     "mmoreram/base-bundle": "*",
-    "league/tactician": "*",
     "clue/block-react": "*",
     "symfony/console":  "*"
   },

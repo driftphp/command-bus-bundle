@@ -16,14 +16,13 @@ declare(strict_types=1);
 namespace Drift\Bus\Middleware;
 
 use Drift\Bus\Exception\MissingHandlerException;
-use League\Tactician\Middleware as BaseMiddleware;
 use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 
 /**
  * Class HandlerMiddleware.
  */
-class HandlerMiddleware implements BaseMiddleware
+class HandlerMiddleware
 {
     /**
      * @var array

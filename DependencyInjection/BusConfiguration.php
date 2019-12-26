@@ -30,13 +30,6 @@ class BusConfiguration extends BaseConfiguration
         $rootNode
             ->addDefaultsIfNotSet()
             ->children()
-                ->enumNode('adapter')
-                    ->values([
-                        'tactician',
-                    ])
-                    ->defaultValue('tactician')
-                ->end()
-
                 ->arrayNode('query_bus')
                     ->addDefaultsIfNotSet()
                     ->children()

@@ -13,16 +13,18 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests;
+namespace Drift\Bus\Tests\Bus;
 
-use Drift\Bus\Tests\Command\ChangeAThing;
-use Drift\Bus\Tests\CommandHandler\ChangeAThingHandler;
+use Drift\Bus\Tests\BusFunctionalTest;
+use Drift\Bus\Tests\Context;
+use Drift\Bus\Tests\Query\GetAThing;
+use Drift\Bus\Tests\QueryHandler\GetAThingHandler;
 use function Clue\React\Block\await;
 
 /**
- * Class CommandHandlerTest.
+ * Class QueryHandlerTest.
  */
-class CommandHandlerTest extends BusFunctionalTest
+class QueryHandlerTest extends BusFunctionalTest
 {
     /**
      * Decorate configuration.
@@ -34,9 +36,9 @@ class CommandHandlerTest extends BusFunctionalTest
     protected static function decorateConfiguration(array $configuration): array
     {
         $configuration['services'][Context::class] = [];
-        $configuration['services'][ChangeAThingHandler::class] = [
+        $configuration['services'][GetAThingHandler::class] = [
             'tags' => [
-                ['name' => 'command_handler', 'method' => 'handle'],
+                ['name' => 'query_handler', 'method' => 'handle'],
                 ['name' => 'another_tag', 'method' => 'anotherMethod'],
             ],
         ];
@@ -50,12 +52,12 @@ class CommandHandlerTest extends BusFunctionalTest
     public function testQueryBus()
     {
         $promise = $this
-            ->getCommandBus()
-            ->execute(new ChangeAThing('thing'));
+            ->getQueryBus()
+            ->ask(new GetAThing('thing'));
 
         $value = await($promise, $this->getLoop());
 
         $this->assertEquals('thing', $this->getContextValue('thing'));
-        $this->assertNull($value);
+        $this->assertEquals('thing OK', $value);
     }
 }

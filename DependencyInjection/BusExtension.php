@@ -61,7 +61,6 @@ class BusExtension extends BaseExtension
     protected function getParametrizationValues(array $config): array
     {
         return [
-            'bus.adapter' => $config['adapter'],
             'bus.query_bus.middlewares' => $config['query_bus']['middlewares'],
             'bus.command_bus.middlewares' => $config['command_bus']['middlewares'],
             'bus.command_bus.async_adapter' => $config['command_bus']['async_adapter'] ?? false,

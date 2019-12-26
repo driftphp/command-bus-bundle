@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace Drift\Bus\Async;
 
-use Drift\Bus\AsyncAdapter;
-use Drift\Bus\CommandBus;
+use Drift\Bus\Bus\CommandBus;
+use Drift\Bus\Exception\InvalidCommandException;
 use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 
@@ -29,6 +29,14 @@ class InMemoryAdapter implements AsyncAdapter
      * @var array
      */
     private $queue = [];
+
+    /**
+     * @return array
+     */
+    public function getQueue(): array
+    {
+        return $this->queue;
+    }
 
     /**
      * {@inheritdoc}
@@ -46,6 +54,8 @@ class InMemoryAdapter implements AsyncAdapter
      * @param CommandBus $bus
      * @param int        $limit
      * @param callable   $printCommandConsumed
+     *
+     * @throws InvalidCommandException
      */
     public function consume(
         CommandBus $bus,

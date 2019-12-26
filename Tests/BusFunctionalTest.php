@@ -15,9 +15,9 @@ declare(strict_types=1);
 
 namespace Drift\Bus\Tests;
 
+use Drift\Bus\Bus\CommandBus;
+use Drift\Bus\Bus\QueryBus;
 use Drift\Bus\BusBundle;
-use Drift\Bus\CommandBus;
-use Drift\Bus\QueryBus;
 use Mmoreram\BaseBundle\Kernel\DriftBaseKernel;
 use Mmoreram\BaseBundle\Tests\BaseFunctionalTest;
 use React\EventLoop\Factory;
@@ -62,6 +62,10 @@ abstract class BusFunctionalTest extends BaseFunctionalTest
 
                 'drift.command_bus.test' => [
                     'alias' => 'drift.command_bus',
+                ],
+
+                'drift.inline_command_bus.test' => [
+                    'alias' => 'drift.inline_command_bus',
                 ],
 
                 'drift.query_bus.test' => [
@@ -131,6 +135,16 @@ abstract class BusFunctionalTest extends BaseFunctionalTest
      * @return CommandBus
      */
     protected function getCommandBus(): CommandBus
+    {
+        return $this->get('drift.command_bus.test');
+    }
+
+    /**
+     * Get inline command bus.
+     *
+     * @return CommandBus
+     */
+    protected function getInlineCommandBus(): CommandBus
     {
         return $this->get('drift.command_bus.test');
     }

@@ -13,41 +13,27 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus;
+namespace Drift\Bus\Bus;
 
+use Drift\Bus\Exception\InvalidCommandException;
 use React\Promise\PromiseInterface;
 
 /**
  * Class QueryBus.
  */
-class QueryBus
+class QueryBus extends Bus
 {
-    /**
-     * @var Bus
-     */
-    private $bus;
-
-    /**
-     * QueryBus constructor.
-     *
-     * @param Bus $bus
-     */
-    public function __construct(Bus $bus)
-    {
-        $this->bus = $bus;
-    }
-
     /**
      * Ask query.
      *
      * @param object $query
      *
      * @return PromiseInterface
+     *
+     * @throws InvalidCommandException
      */
     public function ask($query): PromiseInterface
     {
-        return $this
-            ->bus
-            ->handle($query);
+        return $this->handle($query);
     }
 }

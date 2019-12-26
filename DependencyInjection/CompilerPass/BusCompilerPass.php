@@ -15,19 +15,19 @@ declare(strict_types=1);
 
 namespace Drift\Bus\DependencyInjection\CompilerPass;
 
-use Drift\Bus\Adapter\TacticianBus;
-use Drift\Bus\Async\FilesystemAdapter;
 use Drift\Bus\Async\InMemoryAdapter;
 use Drift\Bus\Async\RedisAdapter;
-use Drift\Bus\AsyncAdapter;
-use Drift\Bus\AsyncMiddleware;
-use Drift\Bus\CommandBus;
+use Drift\Bus\Async\AsyncAdapter;
+use Drift\Bus\Bus\InlineCommandBus;
+use Drift\Bus\Exception\InvalidMiddlewareException;
+use Drift\Bus\Middleware\AsyncMiddleware;
+use Drift\Bus\Bus\CommandBus;
 use Drift\Bus\Console\CommandConsumer;
 use Drift\Bus\Middleware\HandlerMiddleware;
 use Drift\Bus\Middleware\Middleware;
-use Drift\Bus\QueryBus;
-use League\Tactician\CommandBus as TacticianCommandBus;
+use Drift\Bus\Bus\QueryBus;
 use ReflectionClass;
+use ReflectionException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -45,18 +45,12 @@ class BusCompilerPass implements CompilerPassInterface
     {
         $asyncBus = $this->createAsyncMiddleware($container);
 
-        if ('tactician' === $container->getParameter('bus.adapter')) {
-            $this->createTacticianQueryBusAdapter($container);
-            $this->createTacticianCommandBusAdapter($container, '', $asyncBus);
-            $this->createTacticianCommandBusAdapter($container, 'inline_', false);
-        }
-
         if ($asyncBus) {
             $this->createCommandConsumer($container);
         }
 
         $this->createQueryBus($container);
-        $this->createCommandBus($container);
+        $this->createCommandBus($container, $asyncBus);
         $this->createInlineCommandBus($container);
     }
 
@@ -118,9 +112,14 @@ class BusCompilerPass implements CompilerPassInterface
     {
         $container->setDefinition('drift.query_bus', new Definition(
             QueryBus::class, [
-                new Reference('drift.query_bus.adapter'),
+                $this->createMiddlewaresArray(
+                    $container,
+                    'query',
+                    false
+                )
             ]
         ));
+
         $container->setAlias(QueryBus::class, 'drift.query_bus');
     }
 
@@ -128,14 +127,23 @@ class BusCompilerPass implements CompilerPassInterface
      * Create command bus.
      *
      * @param ContainerBuilder $container
+     * @param bool $asyncBus
      */
-    public function createCommandBus(ContainerBuilder $container)
+    public function createCommandBus(
+        ContainerBuilder $container,
+        bool $asyncBus
+    )
     {
         $container->setDefinition('drift.command_bus', new Definition(
             CommandBus::class, [
-                new Reference('drift.command_bus.adapter'),
+                $this->createMiddlewaresArray(
+                    $container,
+                    'command',
+                    $asyncBus
+                )
             ]
         ));
+
         $container->setAlias(CommandBus::class, 'drift.command_bus');
     }
 
@@ -147,11 +155,16 @@ class BusCompilerPass implements CompilerPassInterface
     public function createInlineCommandBus(ContainerBuilder $container)
     {
         $container->setDefinition('drift.inline_command_bus', new Definition(
-            CommandBus::class, [
-                new Reference('drift.inline_command_bus.adapter'),
+            InlineCommandBus::class, [
+                $this->createMiddlewaresArray(
+                    $container,
+                    'command',
+                    false
+                )
             ]
         ));
-        $container->setAlias(CommandBus::class, 'drift.inline_command_bus');
+
+        $container->setAlias(InlineCommandBus::class, 'drift.inline_command_bus');
     }
 
     /**
@@ -248,7 +261,13 @@ class BusCompilerPass implements CompilerPassInterface
         foreach ($handlers as $serviceId => $handler) {
             $serviceNamespace = $container->getDefinition($serviceId)->getClass();
             $reflectionClass = new ReflectionClass($serviceNamespace);
-            $reflectionMethod = $reflectionClass->getMethod($handler[0]['method'] ?? 'handle');
+
+            try {
+                $reflectionMethod = $reflectionClass->getMethod($handler[0]['method'] ?? 'handle');
+            } catch (ReflectionException $exception) {
+                throw new InvalidMiddlewareException();
+            }
+
             $reflectionParameter = $reflectionMethod->getParameters()[0];
             $handlersMap[$reflectionParameter->getClass()->getName()] = [new Reference($serviceId), $reflectionMethod->getName()];
         }
@@ -274,73 +293,6 @@ class BusCompilerPass implements CompilerPassInterface
         ]);
 
         $container->setDefinition(CommandConsumer::class, $consumer);
-    }
-
-    /**
-     * Tactician.
-     */
-
-    /**
-     * Create tactician query bus adapter.
-     *
-     * @param ContainerBuilder $container
-     */
-    public function createTacticianQueryBusAdapter(ContainerBuilder $container)
-    {
-        $container->setDefinition(
-            'tactician.query_bus',
-            new Definition(
-                TacticianCommandBus::class, [
-                    $this->createMiddlewaresArray(
-                        $container,
-                        'query'
-                    ),
-                ]
-            )
-        );
-
-        $container->setDefinition(
-            'drift.query_bus.adapter',
-            new Definition(
-                TacticianBus::class, [
-                    new Reference('tactician.query_bus'),
-                ]
-            )
-        );
-    }
-
-    /**
-     * Create tactician command bus adapter.
-     *
-     * @param ContainerBuilder $container
-     * @param bool             $isAsync
-     */
-    public function createTacticianCommandBusAdapter(
-        ContainerBuilder $container,
-        string $prefix = '',
-        bool $isAsync = false
-    ) {
-        $container->setDefinition(
-            "tactician.{$prefix}command_bus",
-            new Definition(
-                TacticianCommandBus::class, [
-                    $this->createMiddlewaresArray(
-                        $container,
-                        'command',
-                        $isAsync
-                    ),
-                ]
-            )
-        );
-
-        $container->setDefinition(
-            "drift.{$prefix}command_bus.adapter",
-            new Definition(
-                TacticianBus::class, [
-                    new Reference("tactician.{$prefix}command_bus"),
-                ]
-            )
-        );
     }
 
     /**

@@ -13,10 +13,12 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests;
+namespace Drift\Bus\Tests\Async;
 
+use Drift\Bus\Tests\BusFunctionalTest;
 use Drift\Bus\Tests\Command\ChangeAThing;
 use Drift\Bus\Tests\CommandHandler\ChangeAThingHandler;
+use Drift\Bus\Tests\Context;
 use Drift\Bus\Tests\Middleware\Middleware1;
 use Drift\Bus\Tests\Middleware\Middleware3;
 use function Clue\React\Block\await;
@@ -44,7 +46,7 @@ class AsyncTest extends BusFunctionalTest
         ];
 
         $configuration['imports'] = [
-            ['resource' => __DIR__.'/autowiring.yml'],
+            ['resource' => __DIR__ . '/../autowiring.yml'],
         ];
 
         $configuration['bus'] = [

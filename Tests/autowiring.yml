@@ -10,3 +10,5 @@ services:
 
   Drift\Bus\Tests\QueryHandler\:
     resource: 'QueryHandler/.'
+
+  Drift\Bus\Tests\Context: ~

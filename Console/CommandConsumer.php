@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace Drift\Bus\Console;
 
-use Drift\Bus\AsyncAdapter;
-use Drift\Bus\CommandBus;
+use Drift\Bus\Async\AsyncAdapter;
+use Drift\Bus\Bus\CommandBus;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -92,7 +92,7 @@ class CommandConsumer extends Command
             ->asyncAdapter
             ->consume(
                 $this->commandBus,
-                $input->getOption('limit'),
+                \intval($input->getOption('limit')),
                 function ($command) use ($output) {
                     $commandNamespace = get_class($command);
                     $commandParts = explode('\\', $commandNamespace);

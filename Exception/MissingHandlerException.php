@@ -17,6 +17,9 @@ namespace Drift\Bus\Exception;
 
 use Exception;
 
+/**
+ * Class MissingHandlerException
+ */
 class MissingHandlerException extends Exception
 {
 }

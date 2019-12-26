@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace Drift\Bus\Async;
 
 use Clue\React\Redis\Client;
-use Drift\Bus\AsyncAdapter;
-use Drift\Bus\CommandBus;
+use Drift\Bus\Bus\CommandBus;
+use Drift\Bus\Exception\InvalidCommandException;
 use function Clue\React\Block\await;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
@@ -75,6 +75,8 @@ class RedisAdapter implements AsyncAdapter
      * @param CommandBus $bus
      * @param int        $limit
      * @param callable   $printCommandConsumed
+     *
+     * @throws InvalidCommandException
      */
     public function consume(
         CommandBus $bus,

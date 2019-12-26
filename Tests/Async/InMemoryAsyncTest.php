@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests;
+namespace Drift\Bus\Tests\Async;
 
 /**
  * Class FilesystemAsyncAdapterTest.
@@ -26,9 +26,7 @@ class FilesystemAsyncAdapterTest extends AsyncAdapterTest
     protected static function getAsyncConfiguration(): array
     {
         return [
-            'filesystem' => [
-                'file' => '/tmp/file.sock',
-            ],
+            'in_memory' => [],
         ];
     }
 }

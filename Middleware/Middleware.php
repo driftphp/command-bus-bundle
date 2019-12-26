@@ -15,12 +15,11 @@ declare(strict_types=1);
 
 namespace Drift\Bus\Middleware;
 
-use Drift\Bus\Exception\BadMiddlewareException;
-use League\Tactician\Middleware as BaseMiddleware;
+use Drift\Bus\Exception\InvalidMiddlewareException;
 use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 
-class Middleware implements BaseMiddleware
+class Middleware
 {
     /**
      * @var Middleware
@@ -38,14 +37,14 @@ class Middleware implements BaseMiddleware
      * @param object $middleware
      * @param string $method
      *
-     * @throws BadMiddlewareException
+     * @throws InvalidMiddlewareException
      */
     public function __construct(
         $middleware,
         string $method
     ) {
         if (!method_exists($middleware, $method)) {
-            throw new BadMiddlewareException();
+            throw new InvalidMiddlewareException();
         }
 
         $this->middleware = $middleware;

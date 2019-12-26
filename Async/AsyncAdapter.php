@@ -13,8 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus;
+namespace Drift\Bus\Async;
 
+use Drift\Bus\Bus\CommandBus;
+use Drift\Bus\Exception\InvalidCommandException;
 use React\Promise\PromiseInterface;
 
 /**
@@ -42,6 +44,8 @@ interface AsyncAdapter
      * @param CommandBus $bus
      * @param int        $limit
      * @param callable   $printCommandConsumed
+     *
+     * @throws InvalidCommandException
      */
     public function consume(
         CommandBus $bus,
