@@ -15,14 +15,12 @@ declare(strict_types=1);
 
 namespace Drift\Bus\Async;
 
-use Bunny\Async\Client;
 use Bunny\Channel;
 use Bunny\Message;
 use Bunny\Protocol\MethodQueueDeclareOkFrame;
 use Drift\Bus\Bus\CommandBus;
 use Drift\Bus\Exception\InvalidCommandException;
 use React\EventLoop\LoopInterface;
-use React\Promise\Promise;
 use React\Promise\PromiseInterface;
 
 /**
@@ -48,7 +46,7 @@ class AMQPAdapter extends AsyncAdapter
     /**
      * RedisAdapter constructor.
      *
-     * @param Channel        $channel
+     * @param Channel       $channel
      * @param LoopInterface $loop
      * @param string        $queueName
      */
@@ -70,15 +68,13 @@ class AMQPAdapter extends AsyncAdapter
         return $this
             ->channel
             ->queueDeclare($this->queueName, false, true)
-            ->then(function(MethodQueueDeclareOkFrame $frame) use ($command) {
-
+            ->then(function (MethodQueueDeclareOkFrame $frame) use ($command) {
                 return $this
                     ->channel
                     ->publish(serialize($command), [
                         'delivery_mode' => 2,
                     ], '', $this->queueName);
             });
-
     }
 
     /**
@@ -101,27 +97,25 @@ class AMQPAdapter extends AsyncAdapter
             ->channel
             ->qos(0, 1)
             ->then(function () use ($bus, $printCommandConsumed, $limit, &$iterations) {
-
                 return $this
                     ->channel
-                    ->consume(function(Message $message, Channel $channel) use ($bus, $printCommandConsumed, $limit, &$iterations) {
-
+                    ->consume(function (Message $message, Channel $channel) use ($bus, $printCommandConsumed, $limit, &$iterations) {
                         return $this
                             ->executeCommand(
                                 $bus,
                                 $message->content,
                                 $printCommandConsumed
                             )
-                            ->then(function() use ($message, $channel) {
+                            ->then(function () use ($message, $channel) {
                                 $channel->ack($message);
 
                                 return $message;
-                            }, function() use ($message, $channel) {
+                            }, function () use ($message, $channel) {
                                 $channel->nack($message);
 
                                 return $message;
                             })
-                            ->then(function(Message $message) use (&$limit, &$iterations, $channel) {
+                            ->then(function (Message $message) use (&$limit, &$iterations, $channel) {
                                 if (self::UNLIMITED !== $limit) {
                                     ++$iterations;
                                     if ($iterations >= $limit) {

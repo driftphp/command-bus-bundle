@@ -36,7 +36,7 @@ abstract class AsyncAdapter
      *
      * @return PromiseInterface
      */
-    public abstract function enqueue($command): PromiseInterface;
+    abstract public function enqueue($command): PromiseInterface;
 
     /**
      * Consume.
@@ -47,17 +47,17 @@ abstract class AsyncAdapter
      *
      * @throws InvalidCommandException
      */
-    public abstract function consume(
+    abstract public function consume(
         CommandBus $bus,
         int $limit,
         callable $printCommandConsumed = null
     );
 
     /**
-     * Execute command
+     * Execute command.
      *
      * @param CommandBus $bus
-     * @param string $job
+     * @param string     $job
      * @param callable   $printCommandConsumed
      *
      * @return PromiseInterface
@@ -66,13 +66,12 @@ abstract class AsyncAdapter
         CommandBus $bus,
         string $job,
         callable $printCommandConsumed
-    ) : PromiseInterface
-    {
+    ): PromiseInterface {
         $command = unserialize($job);
 
         return $bus
             ->execute($command)
-            ->then(function() use ($printCommandConsumed, $command) {
+            ->then(function () use ($printCommandConsumed, $command) {
                 if (!is_null($printCommandConsumed)) {
                     $printCommandConsumed($command);
                 }

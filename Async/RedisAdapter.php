@@ -101,7 +101,6 @@ class RedisAdapter extends AsyncAdapter
             if (self::UNLIMITED !== $limit) {
                 ++$iterations;
                 if ($iterations >= $limit) {
-
                     return;
                 }
             }

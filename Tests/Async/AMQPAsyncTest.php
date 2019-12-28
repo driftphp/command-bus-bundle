@@ -50,7 +50,7 @@ class AMQPAsyncTest extends AsyncAdapterTest
         $configuration['amqp'] = [
             'clients' => [
                 'amqp_1' => [
-                    'host' => '127.0.0.1'
+                    'host' => '127.0.0.1',
                 ],
             ],
         ];
