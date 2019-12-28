@@ -4,6 +4,7 @@ jobs:
     docker:
       - image: circleci/php:7.3-cli
       - image: redis
+      - image: rabbitmq
 
     working_directory: ~/project
     steps:

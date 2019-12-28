@@ -25,7 +25,7 @@ use React\Promise\PromiseInterface;
 /**
  * Class RedisAdapter.
  */
-class RedisAdapter implements AsyncAdapter
+class RedisAdapter extends AsyncAdapter
 {
     /**
      * @var Client
@@ -89,12 +89,11 @@ class RedisAdapter implements AsyncAdapter
                 ->redis
                 ->blPop($this->key, 0)
                 ->then(function (array $job) use ($bus, $printCommandConsumed) {
-                    $command = unserialize($job[1]);
-                    $bus->execute($command);
-
-                    if (!is_null($printCommandConsumed)) {
-                        $printCommandConsumed($command);
-                    }
+                    return $this->executeCommand(
+                        $bus,
+                        $job[1],
+                        $printCommandConsumed
+                    );
                 });
 
             await($promise, $this->loop);
@@ -102,6 +101,7 @@ class RedisAdapter implements AsyncAdapter
             if (self::UNLIMITED !== $limit) {
                 ++$iterations;
                 if ($iterations >= $limit) {
+
                     return;
                 }
             }

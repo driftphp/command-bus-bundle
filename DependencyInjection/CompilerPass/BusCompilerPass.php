@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Drift\Bus\DependencyInjection\CompilerPass;
 
+use Drift\Bus\Async\AMQPAdapter;
 use Drift\Bus\Async\AsyncAdapter;
 use Drift\Bus\Async\InMemoryAdapter;
 use Drift\Bus\Async\RedisAdapter;
@@ -72,8 +73,8 @@ class BusCompilerPass implements CompilerPassInterface
         $adapter = $asyncAdapters[$adapterType];
 
         switch ($adapterType) {
-            case 'filesystem':
-                $this->createFilesystemAsyncAdapter($container, $adapter);
+            case 'amqp':
+                $this->createAMQPAsyncAdapter($container, $adapter);
                 break;
             case 'in_memory':
                 $this->createInMemoryAsyncAdapter($container);
@@ -81,6 +82,8 @@ class BusCompilerPass implements CompilerPassInterface
             case 'redis':
                 $this->createRedisAsyncAdapter($container, $adapter);
                 break;
+            default:
+                return false;
         }
 
         $container->setDefinition(AsyncMiddleware::class,
@@ -299,28 +302,6 @@ class BusCompilerPass implements CompilerPassInterface
      */
 
     /**
-     * Create filesystem async adapter.
-     *
-     * @param ContainerBuilder $container
-     * @param array            $adapter
-     */
-    private function createFilesystemAsyncAdapter(
-        ContainerBuilder $container,
-        array $adapter
-    ) {
-        $container->setDefinition(
-            AsyncAdapter::class,
-            new Definition(
-                FilesystemAdapter::class, [
-                    new Reference('reactphp.event_loop'),
-                    new Reference('drift.filesystem'),
-                    $adapter['file'],
-                ]
-            )
-        );
-    }
-
-    /**
      * Create in_memory async adapter.
      *
      * @param ContainerBuilder $container
@@ -349,6 +330,26 @@ class BusCompilerPass implements CompilerPassInterface
                 new Reference('redis.'.$adapter['client'].'_client'),
                 new Reference('reactphp.event_loop'),
                 $adapter['key'] ?? 'commands',
+            ])
+        );
+    }
+
+    /**
+     * Create amqp async adapter.
+     *
+     * @param ContainerBuilder $container
+     * @param array            $adapter
+     */
+    private function createAMQPAsyncAdapter(
+        ContainerBuilder $container,
+        array $adapter
+    ) {
+        $container->setDefinition(
+            AsyncAdapter::class,
+            new Definition(AMQPAdapter::class, [
+                new Reference('amqp.'.$adapter['client'].'_channel'),
+                new Reference('reactphp.event_loop'),
+                $adapter['queue'] ?? 'commands',
             ])
         );
     }

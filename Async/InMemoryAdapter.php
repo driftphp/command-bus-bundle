@@ -23,7 +23,7 @@ use React\Promise\PromiseInterface;
 /**
  * Class DummyAdapter.
  */
-class InMemoryAdapter implements AsyncAdapter
+class InMemoryAdapter extends AsyncAdapter
 {
     /**
      * @var array

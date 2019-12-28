@@ -22,7 +22,7 @@ use React\Promise\PromiseInterface;
 /**
  * Interface AsyncAdapter.
  */
-interface AsyncAdapter
+abstract class AsyncAdapter
 {
     /**
      * @var int
@@ -36,7 +36,7 @@ interface AsyncAdapter
      *
      * @return PromiseInterface
      */
-    public function enqueue($command): PromiseInterface;
+    public abstract function enqueue($command): PromiseInterface;
 
     /**
      * Consume.
@@ -47,9 +47,35 @@ interface AsyncAdapter
      *
      * @throws InvalidCommandException
      */
-    public function consume(
+    public abstract function consume(
         CommandBus $bus,
         int $limit,
         callable $printCommandConsumed = null
     );
+
+    /**
+     * Execute command
+     *
+     * @param CommandBus $bus
+     * @param string $job
+     * @param callable   $printCommandConsumed
+     *
+     * @return PromiseInterface
+     */
+    protected function executeCommand(
+        CommandBus $bus,
+        string $job,
+        callable $printCommandConsumed
+    ) : PromiseInterface
+    {
+        $command = unserialize($job);
+
+        return $bus
+            ->execute($command)
+            ->then(function() use ($printCommandConsumed, $command) {
+                if (!is_null($printCommandConsumed)) {
+                    $printCommandConsumed($command);
+                }
+            });
+    }
 }

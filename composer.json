@@ -11,7 +11,13 @@
   },
 
   "require-dev": {
-    "drift/redis-bundle": "*"
+    "drift/redis-bundle": "*",
+    "drift/amqp-bundle": "*"
+  },
+
+  "suggest": {
+    "drift/redis-bundle": "Install this bundle to use Redis as a queue system",
+    "drift/amqp-bundle": "Install this bundle to use AMQP as a queue system"
   },
 
   "autoload": {
