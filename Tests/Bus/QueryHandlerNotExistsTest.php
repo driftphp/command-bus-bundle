@@ -20,6 +20,7 @@ use Drift\Bus\Tests\BusFunctionalTest;
 use Drift\Bus\Tests\Command\ChangeAThing;
 use Drift\Bus\Tests\Context;
 use Drift\Bus\Tests\QueryHandler\GetAThingHandler;
+use function Clue\React\Block\await;
 
 /**
  * Class QueryHandlerNotExistsTest.
@@ -51,8 +52,10 @@ class QueryHandlerNotExistsTest extends BusFunctionalTest
     public function testQueryBus()
     {
         $this->expectException(MissingHandlerException::class);
-        $this
+        $promise = $this
             ->getQueryBus()
             ->ask(new ChangeAThing('thing'));
+
+        await($promise, $this->getLoop());
     }
 }

@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Drift\Bus\Tests\Bus;
 
+use Drift\Bus\Middleware\HandlerMiddleware;
 use Drift\Bus\Tests\BusFunctionalTest;
 use Drift\Bus\Tests\Command\ChangeAThing;
 use Drift\Bus\Tests\CommandHandler\ChangeAThingHandler;
@@ -59,5 +60,20 @@ class CommandHandlerTest extends BusFunctionalTest
 
         $this->assertEquals('thing', $this->getContextValue('thing'));
         $this->assertNull($value);
+        $this->assertEquals([
+            [
+                'class' => HandlerMiddleware::class,
+                'method' => 'execute',
+                'handlers' => [
+                    ChangeAThing::class => [
+                        'handler' => ChangeAThingHandler::class,
+                        'method' => 'handle',
+                    ],
+                ],
+            ],
+        ], $this
+            ->getCommandBus()
+            ->getMiddlewareList()
+        );
     }
 }

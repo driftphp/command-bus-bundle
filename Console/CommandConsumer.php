@@ -93,12 +93,7 @@ class CommandConsumer extends Command
             ->consume(
                 $this->commandBus,
                 \intval($input->getOption('limit')),
-                function ($command) use ($output) {
-                    $commandNamespace = get_class($command);
-                    $commandParts = explode('\\', $commandNamespace);
-                    $commandClass = end($commandParts);
-                    $output->writeln(sprintf('Command <%s> consumed', $commandClass));
-                }
+                $output
             );
 
         return 0;

@@ -23,6 +23,8 @@ use Mmoreram\BaseBundle\Tests\BaseFunctionalTest;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -30,6 +32,21 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 abstract class BusFunctionalTest extends BaseFunctionalTest
 {
+    /**
+     * @var BufferedOutput
+     */
+    private static $output;
+
+    /**
+     * Sets up the fixture, for example, open a network connection.
+     * This method is called before a test is executed.
+     */
+    public static function setUpBeforeClass()
+    {
+        self::$output = new BufferedOutput();
+        parent::setUpBeforeClass();
+    }
+
     /**
      * Get kernel.
      *
@@ -179,5 +196,24 @@ abstract class BusFunctionalTest extends BaseFunctionalTest
     protected function getContextValue(string $value)
     {
         return $this->get(Context::class)->values[$value] ?? null;
+    }
+
+    /**
+     * Runs a command and returns its output as a string value.
+     *
+     * @param array $command
+     *
+     * @return string
+     */
+    protected static function runCommand(array $command): string
+    {
+        $input = new ArrayInput($command);
+
+        static::$application->run(
+            $input,
+            self::$output
+        );
+
+        return self::$output->fetch();
     }
 }

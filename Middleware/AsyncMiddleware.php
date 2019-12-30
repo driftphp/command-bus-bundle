@@ -21,7 +21,7 @@ use React\Promise\PromiseInterface;
 /**
  * Class AsyncMiddleware.
  */
-class AsyncMiddleware
+class AsyncMiddleware implements DebugableMiddleware
 {
     /**
      * @var AsyncAdapter
@@ -39,6 +39,19 @@ class AsyncMiddleware
     }
 
     /**
+     * @return PromiseInterface
+     */
+    public function prepare(): PromiseInterface
+    {
+        return $this
+            ->asyncAdapter
+            ->prepare()
+            ->then(function () {
+                return $this;
+            });
+    }
+
+    /**
      * Handle.
      *
      * @param object $command
@@ -51,5 +64,16 @@ class AsyncMiddleware
         return $this
             ->asyncAdapter
             ->enqueue($command);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMiddlewareInfo(): array
+    {
+        return [
+            'class' => self::class,
+            'method' => 'execute',
+        ];
     }
 }

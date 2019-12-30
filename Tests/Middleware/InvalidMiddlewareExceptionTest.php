@@ -57,4 +57,12 @@ class InvalidMiddlewareExceptionTest extends BusFunctionalTest
             // Ok
         }
     }
+
+    /**
+     * Test that test can run. Asserting this true===true is a success.
+     */
+    public function testRuns()
+    {
+        $this->assertTrue(true);
+    }
 }

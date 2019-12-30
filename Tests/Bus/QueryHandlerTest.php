@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Drift\Bus\Tests\Bus;
 
+use Drift\Bus\Exception\InvalidCommandException;
 use Drift\Bus\Tests\BusFunctionalTest;
 use Drift\Bus\Tests\Context;
 use Drift\Bus\Tests\Query\GetAThing;
@@ -59,5 +60,18 @@ class QueryHandlerTest extends BusFunctionalTest
 
         $this->assertEquals('thing', $this->getContextValue('thing'));
         $this->assertEquals('thing OK', $value);
+    }
+
+    /**
+     * Test bad command.
+     */
+    public function testBadCommand()
+    {
+        $this->expectException(InvalidCommandException::class);
+        $promise = $this
+            ->getQueryBus()
+            ->ask('something');
+
+        await($promise, $this->getLoop());
     }
 }

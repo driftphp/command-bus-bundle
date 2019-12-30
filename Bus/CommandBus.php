@@ -26,16 +26,16 @@ class CommandBus extends Bus
     /**
      * Execute command.
      *
-     * @param object $query
+     * @param object $command
      *
      * @return PromiseInterface
      *
      * @throws InvalidCommandException
      */
-    public function execute($query): PromiseInterface
+    public function execute($command): PromiseInterface
     {
         return $this
-            ->handle($query)
+            ->handle($command)
             ->then(function () {
                 return;
             });

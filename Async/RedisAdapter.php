@@ -21,6 +21,7 @@ use Drift\Bus\Exception\InvalidCommandException;
 use function Clue\React\Block\await;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class RedisAdapter.
@@ -72,37 +73,37 @@ class RedisAdapter extends AsyncAdapter
     /**
      * Consume.
      *
-     * @param CommandBus $bus
-     * @param int        $limit
-     * @param callable   $printCommandConsumed
+     * @param CommandBus      $bus
+     * @param int             $limit
+     * @param OutputInterface $output
      *
      * @throws InvalidCommandException
      */
     public function consume(
         CommandBus $bus,
         int $limit,
-        callable $printCommandConsumed = null
+        OutputInterface $output
     ) {
-        $iterations = 0;
+        $this->resetIterations($limit);
+
         while (true) {
             $promise = $this
                 ->redis
                 ->blPop($this->key, 0)
-                ->then(function (array $job) use ($bus, $printCommandConsumed) {
+                ->then(function (array $job) use ($bus, $output) {
                     return $this->executeCommand(
                         $bus,
-                        $job[1],
-                        $printCommandConsumed
+                        unserialize($job[1]),
+                        $output,
+                        function () {},
+                        function () {},
+                        function () {}
                     );
                 });
 
-            await($promise, $this->loop);
-
-            if (self::UNLIMITED !== $limit) {
-                ++$iterations;
-                if ($iterations >= $limit) {
-                    return;
-                }
+            $wasLastOne = await($promise, $this->loop);
+            if ($wasLastOne) {
+                return;
             }
         }
     }

@@ -17,17 +17,13 @@ namespace Drift\Bus\Tests\Async;
 
 use Drift\Bus\Middleware\AsyncMiddleware;
 use Drift\Bus\Tests\BusFunctionalTest;
-use Drift\Bus\Tests\Command\ChangeAThing;
 use Drift\Bus\Tests\CommandHandler\ChangeAThingHandler;
 use Drift\Bus\Tests\Context;
-use Drift\Bus\Tests\Middleware\Middleware1;
-use Drift\Bus\Tests\Middleware\Middleware3;
-use function Clue\React\Block\await;
 
 /**
- * Class AsyncTest.
+ * Class DefaultAsyncTest.
  */
-class AsyncTest extends BusFunctionalTest
+class DefaultAsyncTest extends BusFunctionalTest
 {
     /**
      * Decorate configuration.
@@ -55,11 +51,6 @@ class AsyncTest extends BusFunctionalTest
                 'async_adapter' => [
                     'in_memory' => [],
                 ],
-                'middlewares' => [
-                    Middleware1::class.'::anotherMethod',
-                    '@async',
-                    Middleware3::class,
-                ],
             ],
         ];
 
@@ -71,20 +62,9 @@ class AsyncTest extends BusFunctionalTest
      *
      * @group async
      */
-    public function testCommandBus()
+    public function testCommandBusMiddlewares()
     {
-        $promise = $this
-            ->getCommandBus()
-            ->execute(new ChangeAThing('thing'));
-
-        await($promise, $this->getLoop());
-
-        $this->assertTrue($this->getContextValue('middleware1'));
         $this->assertEquals([
-            [
-                'class' => Middleware1::class,
-                'method' => 'anotherMethod',
-            ],
             [
                 'class' => AsyncMiddleware::class,
                 'method' => 'execute',

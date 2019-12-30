@@ -19,7 +19,10 @@ use Drift\Bus\Exception\InvalidMiddlewareException;
 use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 
-class Middleware
+/**
+ * Class Middleware.
+ */
+class Middleware implements DebugableMiddleware
 {
     /**
      * @var Middleware
@@ -51,7 +54,15 @@ class Middleware
         $this->method = $method;
     }
 
-    public function execute($command, callable $next)
+    /**
+     * Execute middleware.
+     *
+     * @param $command
+     * @param callable $next
+     *
+     * @return PromiseInterface
+     */
+    public function execute($command, callable $next): PromiseInterface
     {
         $result = $this
             ->middleware
@@ -60,5 +71,18 @@ class Middleware
         return ($result instanceof PromiseInterface)
             ? $result
             : new FulfilledPromise($result);
+    }
+
+    /**
+     * Get inner middleware info.
+     *
+     * @return array
+     */
+    public function getMiddlewareInfo(): array
+    {
+        return [
+            'class' => get_class($this->middleware),
+            'method' => $this->method,
+        ];
     }
 }

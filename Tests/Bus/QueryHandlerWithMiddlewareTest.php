@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Drift\Bus\Tests\Bus;
 
+use Drift\Bus\Middleware\HandlerMiddleware;
 use Drift\Bus\Tests\BusFunctionalTest;
 use Drift\Bus\Tests\Context;
 use Drift\Bus\Tests\Middleware\Middleware1;
@@ -80,6 +81,34 @@ class QueryHandlerWithMiddleware extends BusFunctionalTest
         $value = await($promise, $this->getLoop());
 
         $this->assertEquals('super thing OK changed', $value);
+
+        $this->assertEquals([
+            [
+                'class' => Middleware1::class,
+                'method' => 'anotherMethod',
+            ],
+            [
+                'class' => Middleware2::class,
+                'method' => 'execute',
+            ],
+            [
+                'class' => HandlerMiddleware::class,
+                'method' => 'execute',
+                'handlers' => [
+                    GetAThing::class => [
+                        'handler' => GetAThingHandler::class,
+                        'method' => 'handle',
+                    ],
+                    GetAnotherThing::class => [
+                        'handler' => GetAnotherThingHandler::class,
+                        'method' => 'another',
+                    ],
+                ],
+            ],
+        ], $this
+            ->getQueryBus()
+            ->getMiddlewareList()
+        );
     }
 
     /**

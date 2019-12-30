@@ -15,13 +15,13 @@ declare(strict_types=1);
 
 namespace Drift\Bus\Tests\CommandHandler;
 
-use Drift\Bus\Tests\Command\ChangeAnotherThing;
+use Drift\Bus\Tests\Command\ChangeYetAnotherThing;
 use Drift\Bus\Tests\Context;
 
 /**
- * ChangeAnotherThingHandler.
+ * ChangeYetAnotherThingHandler.
  */
-final class ChangeAnotherThingHandler
+final class ChangeYetAnotherThingHandler
 {
     /**
      * @var Context
@@ -41,10 +41,10 @@ final class ChangeAnotherThingHandler
     /**
      * Handle.
      */
-    public function handle(ChangeAnotherThing $AnotherThing)
+    public function handle(ChangeYetAnotherThing $AnotherThing)
     {
         $this->context->values['thing'] = $AnotherThing->getThing();
 
-        return $AnotherThing->getThing().' OK!!';
+        return $AnotherThing->getThing().' YET!!';
     }
 }

@@ -16,6 +16,8 @@ declare(strict_types=1);
 namespace Drift\Bus\Bus;
 
 use Drift\Bus\Exception\InvalidCommandException;
+use Drift\Bus\Middleware\DebugableMiddleware;
+use Drift\Bus\Middleware\Middleware;
 
 /**
  * Interface Bus.
@@ -28,10 +30,18 @@ abstract class Bus
     private $middlewareChain;
 
     /**
+     * @var array
+     */
+    private $middleware;
+
+    /**
      * @param array $middleware
      */
     public function __construct(array $middleware)
     {
+        $this->middleware = array_map(function (DebugableMiddleware $middleware) {
+            return $middleware->getMiddlewareInfo();
+        }, $middleware);
         $this->middlewareChain = $this->createExecutionChain($middleware);
     }
 
@@ -71,5 +81,15 @@ abstract class Bus
         }
 
         return $lastCallable;
+    }
+
+    /**
+     * Get middleware list.
+     *
+     * @return array
+     */
+    public function getMiddlewareList(): array
+    {
+        return $this->middleware;
     }
 }

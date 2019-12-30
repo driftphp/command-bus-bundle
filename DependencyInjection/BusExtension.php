@@ -18,6 +18,9 @@ namespace Drift\Bus\DependencyInjection;
 use Mmoreram\BaseBundle\DependencyInjection\BaseExtension;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+/**
+ * Class BusExtension.
+ */
 class BusExtension extends BaseExtension
 {
     /**
