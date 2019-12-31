@@ -17,11 +17,11 @@ namespace Drift\Bus\Async;
 
 use Drift\Bus\Bus\CommandBus;
 use Drift\Bus\Exception\InvalidCommandException;
+use Drift\Console\OutputPrinter;
 use function Clue\React\Block\await;
 use React\EventLoop\LoopInterface;
 use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class DummyAdapter.
@@ -69,16 +69,16 @@ class InMemoryAdapter extends AsyncAdapter
     /**
      * Consume.
      *
-     * @param CommandBus      $bus
-     * @param int             $limit
-     * @param OutputInterface $output
+     * @param CommandBus    $bus
+     * @param int           $limit
+     * @param OutputPrinter $outputPrinter
      *
      * @throws InvalidCommandException
      */
     public function consume(
         CommandBus $bus,
         int $limit,
-        OutputInterface $output
+        OutputPrinter $outputPrinter
     ) {
         $this->resetIterations($limit);
 
@@ -87,7 +87,7 @@ class InMemoryAdapter extends AsyncAdapter
                 ->executeCommand(
                     $bus,
                     $command,
-                    $output,
+                    $outputPrinter,
                     function () use ($key) {
                         unset($this->queue[$key]);
                     },

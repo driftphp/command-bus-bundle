@@ -19,9 +19,9 @@ use Bunny\Channel;
 use Bunny\Message;
 use Drift\Bus\Bus\CommandBus;
 use Drift\Bus\Exception\InvalidCommandException;
+use Drift\Console\OutputPrinter;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class AMQPAdapter.
@@ -87,34 +87,34 @@ class AMQPAdapter extends AsyncAdapter
     /**
      * Consume.
      *
-     * @param CommandBus      $bus
-     * @param int             $limit
-     * @param OutputInterface $output
+     * @param CommandBus    $bus
+     * @param int           $limit
+     * @param OutputPrinter $outputPrinter
      *
      * @throws InvalidCommandException
      */
     public function consume(
         CommandBus $bus,
         int $limit,
-        OutputInterface $output
+        OutputPrinter $outputPrinter
     ) {
         $this->resetIterations($limit);
 
         $this
             ->prepare()
-            ->then(function () use ($bus, $output) {
+            ->then(function () use ($bus, $outputPrinter) {
                 return $this
                     ->channel
                     ->qos(0, 1, true)
-                    ->then(function () use ($bus, $output) {
+                    ->then(function () use ($bus, $outputPrinter) {
                         return $this
                             ->channel
-                            ->consume(function (Message $message, Channel $channel) use ($bus, $output) {
+                            ->consume(function (Message $message, Channel $channel) use ($bus, $outputPrinter) {
                                 return $this
                                     ->executeCommand(
                                         $bus,
                                         unserialize($message->content),
-                                        $output,
+                                        $outputPrinter,
                                         function () use ($message, $channel) {
                                             return $channel->ack($message);
                                         },

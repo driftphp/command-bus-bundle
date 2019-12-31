@@ -16,11 +16,13 @@ declare(strict_types=1);
 namespace Drift\Bus\Async;
 
 use Drift\Bus\Bus\CommandBus;
+use Drift\Bus\Console\ConsumerLineMessage;
 use Drift\Bus\Exception\InvalidCommandException;
 use Drift\Bus\Exception\MissingHandlerException;
+use Drift\Console\OutputPrinter;
+use Drift\Console\TimeFormatter;
 use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Interface AsyncAdapter.
@@ -64,43 +66,51 @@ abstract class AsyncAdapter
     /**
      * Consume.
      *
-     * @param CommandBus      $bus
-     * @param int             $limit
-     * @param OutputInterface $output
+     * @param CommandBus    $bus
+     * @param int           $limit
+     * @param OutputPrinter $outputPrinter
      *
      * @throws InvalidCommandException
      */
     abstract public function consume(
         CommandBus $bus,
         int $limit,
-        OutputInterface $output
+        OutputPrinter $outputPrinter
     );
 
     /**
      * Execute command.
      *
-     * @param CommandBus      $bus
-     * @param object          $command
-     * @param OutputInterface $output
-     * @param callable        $ok
-     * @param callable        $ko
-     * @param callable        $finish
+     * @param CommandBus    $bus
+     * @param object        $command
+     * @param OutputPrinter $outputPrinter
+     * @param callable      $ok
+     * @param callable      $ko
+     * @param callable      $finish
      *
      * @return PromiseInterface
      */
     protected function executeCommand(
         CommandBus $bus,
         $command,
-        OutputInterface $output,
+        OutputPrinter $outputPrinter,
 
         callable $ok,
         callable $ko,
         callable $finish
     ): PromiseInterface {
+        $from = microtime(true);
+
         return $bus
             ->execute($command)
-            ->then(function () use ($output, $command, $ok, $finish) {
-                $this->printCommandMessage($command, $output, 'consumed');
+            ->then(function () use ($from, $outputPrinter, $command, $ok, $finish) {
+                $to = microtime(true);
+
+                (new ConsumerLineMessage(
+                    $command,
+                    TimeFormatter::formatTime($to - $from),
+                    ConsumerLineMessage::CONSUMED
+                ))->print($outputPrinter);
 
                 return (new FulfilledPromise())
                     ->then(function () use ($ok) {
@@ -119,11 +129,17 @@ abstract class AsyncAdapter
 
                         return false;
                     });
-            }, function (\Exception $exception) use ($output, $command, $ok, $ko) {
+            }, function (\Exception $exception) use ($from, $outputPrinter, $command, $ok, $ko) {
+                $to = microtime(true);
                 $ignorable = $exception instanceof MissingHandlerException;
-                $ignorable
-                    ? $this->printCommandMessage($command, $output, 'ignored')
-                    : $this->printCommandMessage($command, $output, 'failed');
+
+                (new ConsumerLineMessage(
+                    $command,
+                    TimeFormatter::formatTime($to - $from),
+                    $ignorable
+                        ? ConsumerLineMessage::IGNORED
+                        : ConsumerLineMessage::REJECTED
+                ))->print($outputPrinter);
 
                 return (
                     $ignorable
@@ -170,23 +186,5 @@ abstract class AsyncAdapter
         }
 
         return true;
-    }
-
-    /**
-     * Print command consumed.
-     *
-     * @param object          $command
-     * @param OutputInterface $output
-     * @param string          $status
-     */
-    private function printCommandMessage(
-        $command,
-        OutputInterface $output,
-        string $status
-    ) {
-        $commandNamespace = get_class($command);
-        $commandParts = explode('\\', $commandNamespace);
-        $commandClass = end($commandParts);
-        $output->writeln(sprintf('Command <%s> %s', $commandClass, $status));
     }
 }

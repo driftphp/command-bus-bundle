@@ -17,6 +17,7 @@ namespace Drift\Bus\Console;
 
 use Drift\Bus\Async\AsyncAdapter;
 use Drift\Bus\Bus\CommandBus;
+use Drift\Console\OutputPrinter;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -88,12 +89,16 @@ class CommandConsumer extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $outputPrinter = new OutputPrinter($output);
+        (new ConsumerHeaderMessage('', 'Consumer built'))->print($outputPrinter);
+        (new ConsumerHeaderMessage('', 'Started listening...'))->print($outputPrinter);
+
         $this
             ->asyncAdapter
             ->consume(
                 $this->commandBus,
                 \intval($input->getOption('limit')),
-                $output
+                $outputPrinter
             );
 
         return 0;

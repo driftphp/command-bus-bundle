@@ -99,11 +99,11 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
 
         $promise2 = $this
             ->getCommandBus()
-            ->execute(new ChangeAnotherThing('thing'));
+            ->execute(new ChangeBThing());
 
         $promise3 = $this
             ->getCommandBus()
-            ->execute(new ChangeBThing());
+            ->execute(new ChangeAnotherThing('thing'));
 
         await($promise1, $this->getLoop());
         await($promise2, $this->getLoop());
@@ -116,8 +116,8 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
             '--limit' => 1,
         ]);
 
-        $this->assertContains('Command <ChangeAThing> consumed', $output);
-        $this->assertNotContains('Command <ChangeAnotherThing> consumed', $output);
+        $this->assertContains("\033[01;32mConsumed\033[0m ChangeAThing", $output);
+        $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
         $this->assertTrue($this->getContextValue('middleware1'));
         $this->assertTrue(file_exists('/tmp/a.thing'));
 
@@ -126,8 +126,9 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
             '--limit' => 1,
         ]);
 
-        $this->assertNotContains('Command <ChangeAThing> consumed', $output2);
-        $this->assertContains('Command <ChangeAnotherThing> consumed', $output2);
+        $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAThing", $output2);
+        $this->assertContains("\033[01;36mIgnored \033[0m ChangeBThing", $output2);
+        $this->assertContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output2);
     }
 
     /**
@@ -156,17 +157,17 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
             '--limit' => 2,
         ]);
 
-        $this->assertContains('Command <ChangeAThing> consumed', $output);
-        $this->assertContains('Command <ChangeAnotherThing> consumed', $output);
-        $this->assertNotContains('Command <ChangeYetAnotherThing> consumed', $output);
+        $this->assertContains("\033[01;32mConsumed\033[0m ChangeAThing", $output);
+        $this->assertContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
+        $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
 
         $output = $this->runCommand([
             'bus:consume-commands',
             '--limit' => 1,
         ]);
 
-        $this->assertNotContains('Command <ChangeAThing> consumed', $output);
-        $this->assertNotContains('Command <ChangeAnotherThing> consumed', $output);
-        $this->assertContains('Command <ChangeYetAnotherThing> consumed', $output);
+        $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAThing", $output);
+        $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
+        $this->assertContains("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
     }
 }
