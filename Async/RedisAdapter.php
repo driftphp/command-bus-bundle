@@ -18,10 +18,10 @@ namespace Drift\Bus\Async;
 use Clue\React\Redis\Client;
 use Drift\Bus\Bus\CommandBus;
 use Drift\Bus\Exception\InvalidCommandException;
+use Drift\Console\OutputPrinter;
 use function Clue\React\Block\await;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class RedisAdapter.
@@ -73,16 +73,16 @@ class RedisAdapter extends AsyncAdapter
     /**
      * Consume.
      *
-     * @param CommandBus      $bus
-     * @param int             $limit
-     * @param OutputInterface $output
+     * @param CommandBus    $bus
+     * @param int           $limit
+     * @param OutputPrinter $outputPrinter
      *
      * @throws InvalidCommandException
      */
     public function consume(
         CommandBus $bus,
         int $limit,
-        OutputInterface $output
+        OutputPrinter $outputPrinter
     ) {
         $this->resetIterations($limit);
 
@@ -90,11 +90,11 @@ class RedisAdapter extends AsyncAdapter
             $promise = $this
                 ->redis
                 ->blPop($this->key, 0)
-                ->then(function (array $job) use ($bus, $output) {
+                ->then(function (array $job) use ($bus, $outputPrinter) {
                     return $this->executeCommand(
                         $bus,
                         unserialize($job[1]),
-                        $output,
+                        $outputPrinter,
                         function () {},
                         function () {},
                         function () {}
@@ -102,6 +102,7 @@ class RedisAdapter extends AsyncAdapter
                 });
 
             $wasLastOne = await($promise, $this->loop);
+
             if ($wasLastOne) {
                 return;
             }
