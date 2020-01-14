@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Async;
+namespace Drift\CommandBus\Async;
 
 use Clue\React\Redis\Client;
-use Drift\Bus\Bus\CommandBus;
-use Drift\Bus\Exception\InvalidCommandException;
+use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
 use function Clue\React\Block\await;
 use React\EventLoop\LoopInterface;

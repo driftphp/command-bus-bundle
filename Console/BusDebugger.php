@@ -13,13 +13,13 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Console;
+namespace Drift\CommandBus\Console;
 
-use Drift\Bus\Bus\Bus;
-use Drift\Bus\Bus\CommandBus;
-use Drift\Bus\Bus\InlineCommandBus;
-use Drift\Bus\Bus\QueryBus;
-use Drift\Bus\Middleware\HandlerMiddleware;
+use Drift\CommandBus\Bus\Bus;
+use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Bus\InlineCommandBus;
+use Drift\CommandBus\Bus\QueryBus;
+use Drift\CommandBus\Middleware\HandlerMiddleware;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

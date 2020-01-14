@@ -5,10 +5,10 @@ services:
     autoconfigure: true
     public: true
 
-  Drift\Bus\Tests\Middleware\:
+  Drift\CommandBus\Tests\Middleware\:
     resource: 'Middleware/.'
 
-  Drift\Bus\Tests\QueryHandler\:
+  Drift\CommandBus\Tests\QueryHandler\:
     resource: 'QueryHandler/.'
 
-  Drift\Bus\Tests\Context: ~
+  Drift\CommandBus\Tests\Context: ~

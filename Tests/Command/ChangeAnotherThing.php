@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\Command;
+namespace Drift\CommandBus\Tests\Command;
 
-use Drift\Bus\Tests\Query\GetAThing;
+use Drift\CommandBus\Tests\Query\GetAThing;
 
 /**
  * Class ChangeAnotherThing.

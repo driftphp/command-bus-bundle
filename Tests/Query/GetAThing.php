@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\Query;
+namespace Drift\CommandBus\Tests\Query;
 
 /**
  * Class DoAThing.

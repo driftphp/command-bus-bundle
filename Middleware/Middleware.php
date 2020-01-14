@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Middleware;
+namespace Drift\CommandBus\Middleware;
 
-use Drift\Bus\Exception\InvalidMiddlewareException;
+use Drift\CommandBus\Exception\InvalidMiddlewareException;
 use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 

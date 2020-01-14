@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\Middleware;
+namespace Drift\CommandBus\Tests\Middleware;
 
-use Drift\Bus\Tests\Context;
+use Drift\CommandBus\Tests\Context;
 
 /**
  * Class Middleware1.

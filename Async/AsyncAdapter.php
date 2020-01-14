@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Async;
+namespace Drift\CommandBus\Async;
 
-use Drift\Bus\Bus\CommandBus;
-use Drift\Bus\Console\ConsumerLineMessage;
-use Drift\Bus\Exception\InvalidCommandException;
-use Drift\Bus\Exception\MissingHandlerException;
+use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Console\ConsumerLineMessage;
+use Drift\CommandBus\Exception\InvalidCommandException;
+use Drift\CommandBus\Exception\MissingHandlerException;
 use Drift\Console\OutputPrinter;
 use Drift\Console\TimeFormatter;
 use React\Promise\FulfilledPromise;

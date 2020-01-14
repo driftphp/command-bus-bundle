@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\QueryHandler;
+namespace Drift\CommandBus\Tests\QueryHandler;
 
-use Drift\Bus\Tests\Context;
-use Drift\Bus\Tests\Query\GetAnotherThing;
+use Drift\CommandBus\Tests\Context;
+use Drift\CommandBus\Tests\Query\GetAnotherThing;
 
 /**
  * Class DonotherAThing handler.

@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\Middleware;
+namespace Drift\CommandBus\Tests\Middleware;
 
-use Drift\Bus\Tests\BusFunctionalTest;
-use Drift\Bus\Tests\CommandHandler\ChangeAThingHandler;
-use Drift\Bus\Tests\Context;
+use Drift\CommandBus\Tests\BusFunctionalTest;
+use Drift\CommandBus\Tests\CommandHandler\ChangeAThingHandler;
+use Drift\CommandBus\Tests\Context;
 use RuntimeException;
 
 /**

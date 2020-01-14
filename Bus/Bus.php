@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Bus;
+namespace Drift\CommandBus\Bus;
 
-use Drift\Bus\Exception\InvalidCommandException;
-use Drift\Bus\Middleware\DebugableMiddleware;
-use Drift\Bus\Middleware\Middleware;
+use Drift\CommandBus\Exception\InvalidCommandException;
+use Drift\CommandBus\Middleware\DebugableMiddleware;
+use Drift\CommandBus\Middleware\Middleware;
 
 /**
  * Interface Bus.

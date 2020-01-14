@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\Async;
+namespace Drift\CommandBus\Tests\Async;
 
-use Drift\Bus\Middleware\AsyncMiddleware;
-use Drift\Bus\Tests\BusFunctionalTest;
-use Drift\Bus\Tests\CommandHandler\ChangeAThingHandler;
-use Drift\Bus\Tests\Context;
+use Drift\CommandBus\Middleware\AsyncMiddleware;
+use Drift\CommandBus\Tests\BusFunctionalTest;
+use Drift\CommandBus\Tests\CommandHandler\ChangeAThingHandler;
+use Drift\CommandBus\Tests\Context;
 
 /**
  * Class DefaultAsyncTest.
@@ -46,7 +46,7 @@ class DefaultAsyncTest extends BusFunctionalTest
             ['resource' => __DIR__.'/../autowiring.yml'],
         ];
 
-        $configuration['bus'] = [
+        $configuration['command_bus'] = [
             'command_bus' => [
                 'async_adapter' => [
                     'in_memory' => [],
