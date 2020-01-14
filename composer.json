@@ -1,5 +1,5 @@
 {
-  "name": "drift/bus-bundle",
+  "name": "drift/command-bus-bundle",
   "description": "Bus Bundle for DriftPHP, a framework on top of Symfony and ReactPHP components",
   "homepage": "https://github.com/driftphp/bus-bundle",
   "type": "library",
