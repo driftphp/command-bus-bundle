@@ -25,13 +25,13 @@
 
   "autoload": {
     "psr-4": {
-      "Drift\\Bus\\": ""
+      "Drift\\CommandBus\\": ""
     }
   },
 
   "autoload-dev": {
     "psr-4": {
-      "Drift\\Bus\\Tests\\": "Tests/"
+      "Drift\\CommandBus\\Tests\\": "Tests/"
     }
   }
 }

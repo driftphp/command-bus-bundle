@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\Middleware;
+namespace Drift\CommandBus\Tests\Middleware;
 
 /**
  * Class Middleware2.

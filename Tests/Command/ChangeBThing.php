@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\Command;
+namespace Drift\CommandBus\Tests\Command;
 
 /**
  * Class ChangeBThing.

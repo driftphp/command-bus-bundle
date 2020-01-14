@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Middleware;
+namespace Drift\CommandBus\Middleware;
 
-use Drift\Bus\Async\AsyncAdapter;
+use Drift\CommandBus\Async\AsyncAdapter;
 use React\Promise\PromiseInterface;
 
 /**

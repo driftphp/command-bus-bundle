@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests;
+namespace Drift\CommandBus\Tests;
 
-use Drift\Bus\Bus\CommandBus;
-use Drift\Bus\Bus\QueryBus;
-use Drift\Bus\BusBundle;
+use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Bus\QueryBus;
+use Drift\CommandBus\CommandBusBundle;
 use Mmoreram\BaseBundle\Kernel\DriftBaseKernel;
 use Mmoreram\BaseBundle\Tests\BaseFunctionalTest;
 use React\EventLoop\Factory;
@@ -94,7 +94,7 @@ abstract class BusFunctionalTest extends BaseFunctionalTest
         return new DriftBaseKernel(
             static::decorateBundles([
                 FrameworkBundle::class,
-                BusBundle::class,
+                CommandBusBundle::class,
             ]),
             static::decorateConfiguration($configuration),
             [],

@@ -13,13 +13,13 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\Bus;
+namespace Drift\CommandBus\Tests\Bus;
 
-use Drift\Bus\Exception\MissingHandlerException;
-use Drift\Bus\Tests\BusFunctionalTest;
-use Drift\Bus\Tests\Command\ChangeAThing;
-use Drift\Bus\Tests\Context;
-use Drift\Bus\Tests\QueryHandler\GetAThingHandler;
+use Drift\CommandBus\Exception\MissingHandlerException;
+use Drift\CommandBus\Tests\BusFunctionalTest;
+use Drift\CommandBus\Tests\Command\ChangeAThing;
+use Drift\CommandBus\Tests\Context;
+use Drift\CommandBus\Tests\QueryHandler\GetAThingHandler;
 use function Clue\React\Block\await;
 
 /**

@@ -13,13 +13,13 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\Bus;
+namespace Drift\CommandBus\Tests\Bus;
 
-use Drift\Bus\Exception\InvalidCommandException;
-use Drift\Bus\Tests\BusFunctionalTest;
-use Drift\Bus\Tests\Context;
-use Drift\Bus\Tests\Query\GetAThing;
-use Drift\Bus\Tests\QueryHandler\GetAThingHandler;
+use Drift\CommandBus\Exception\InvalidCommandException;
+use Drift\CommandBus\Tests\BusFunctionalTest;
+use Drift\CommandBus\Tests\Context;
+use Drift\CommandBus\Tests\Query\GetAThing;
+use Drift\CommandBus\Tests\QueryHandler\GetAThingHandler;
 use function Clue\React\Block\await;
 
 /**

@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\DependencyInjection;
+namespace Drift\CommandBus\DependencyInjection;
 
 use Mmoreram\BaseBundle\DependencyInjection\BaseExtension;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -21,14 +21,14 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 /**
  * Class BusExtension.
  */
-class BusExtension extends BaseExtension
+class CommandBusExtension extends BaseExtension
 {
     /**
      * {@inheritdoc}
      */
     public function getAlias()
     {
-        return 'bus';
+        return 'command_bus';
     }
 
     /**
@@ -45,7 +45,7 @@ class BusExtension extends BaseExtension
      */
     protected function getConfigurationInstance(): ? ConfigurationInterface
     {
-        return new BusConfiguration($this->getAlias());
+        return new CommandBusConfiguration($this->getAlias());
     }
 
     /**

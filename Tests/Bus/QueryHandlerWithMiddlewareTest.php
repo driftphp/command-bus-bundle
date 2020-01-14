@@ -13,17 +13,17 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\Bus;
+namespace Drift\CommandBus\Tests\Bus;
 
-use Drift\Bus\Middleware\HandlerMiddleware;
-use Drift\Bus\Tests\BusFunctionalTest;
-use Drift\Bus\Tests\Context;
-use Drift\Bus\Tests\Middleware\Middleware1;
-use Drift\Bus\Tests\Middleware\Middleware2;
-use Drift\Bus\Tests\Query\GetAnotherThing;
-use Drift\Bus\Tests\Query\GetAThing;
-use Drift\Bus\Tests\QueryHandler\GetAnotherThingHandler;
-use Drift\Bus\Tests\QueryHandler\GetAThingHandler;
+use Drift\CommandBus\Middleware\HandlerMiddleware;
+use Drift\CommandBus\Tests\BusFunctionalTest;
+use Drift\CommandBus\Tests\Context;
+use Drift\CommandBus\Tests\Middleware\Middleware1;
+use Drift\CommandBus\Tests\Middleware\Middleware2;
+use Drift\CommandBus\Tests\Query\GetAnotherThing;
+use Drift\CommandBus\Tests\Query\GetAThing;
+use Drift\CommandBus\Tests\QueryHandler\GetAnotherThingHandler;
+use Drift\CommandBus\Tests\QueryHandler\GetAThingHandler;
 use function Clue\React\Block\await;
 
 /**
@@ -57,7 +57,7 @@ class QueryHandlerWithMiddleware extends BusFunctionalTest
             ['resource' => __DIR__.'/../autowiring.yml'],
         ];
 
-        $configuration['bus'] = [
+        $configuration['command_bus'] = [
             'query_bus' => [
                 'middlewares' => [
                     Middleware1::class.'::anotherMethod',

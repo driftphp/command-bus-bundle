@@ -13,21 +13,21 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\DependencyInjection\CompilerPass;
+namespace Drift\CommandBus\DependencyInjection\CompilerPass;
 
-use Drift\Bus\Async\AMQPAdapter;
-use Drift\Bus\Async\AsyncAdapter;
-use Drift\Bus\Async\InMemoryAdapter;
-use Drift\Bus\Async\RedisAdapter;
-use Drift\Bus\Bus\CommandBus;
-use Drift\Bus\Bus\InlineCommandBus;
-use Drift\Bus\Bus\QueryBus;
-use Drift\Bus\Console\BusDebugger;
-use Drift\Bus\Console\CommandConsumer;
-use Drift\Bus\Exception\InvalidMiddlewareException;
-use Drift\Bus\Middleware\AsyncMiddleware;
-use Drift\Bus\Middleware\HandlerMiddleware;
-use Drift\Bus\Middleware\Middleware;
+use Drift\CommandBus\Async\AMQPAdapter;
+use Drift\CommandBus\Async\AsyncAdapter;
+use Drift\CommandBus\Async\InMemoryAdapter;
+use Drift\CommandBus\Async\RedisAdapter;
+use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Bus\InlineCommandBus;
+use Drift\CommandBus\Bus\QueryBus;
+use Drift\CommandBus\Console\BusDebugger;
+use Drift\CommandBus\Console\CommandConsumer;
+use Drift\CommandBus\Exception\InvalidMiddlewareException;
+use Drift\CommandBus\Middleware\AsyncMiddleware;
+use Drift\CommandBus\Middleware\HandlerMiddleware;
+use Drift\CommandBus\Middleware\Middleware;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;

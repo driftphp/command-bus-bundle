@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Bus;
+namespace Drift\CommandBus\Bus;
 
 /**
  * Class InlineCommandBus.

@@ -1,4 +1,4 @@
-# DriftPHP Bus Bundle
+# DriftPHP Command Bus Bundle
 
 [![CircleCI](https://circleci.com/gh/driftphp/command-bus-bundle.svg?style=svg)](https://circleci.com/gh/driftphp/command-bus-bundle)
 

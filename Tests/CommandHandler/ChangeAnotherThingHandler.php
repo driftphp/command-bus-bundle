@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\CommandHandler;
+namespace Drift\CommandBus\Tests\CommandHandler;
 
-use Drift\Bus\Tests\Command\ChangeAnotherThing;
-use Drift\Bus\Tests\Context;
+use Drift\CommandBus\Tests\Command\ChangeAnotherThing;
+use Drift\CommandBus\Tests\Context;
 
 /**
  * ChangeAnotherThingHandler.

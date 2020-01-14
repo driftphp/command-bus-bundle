@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\DependencyInjection;
+namespace Drift\CommandBus\DependencyInjection;
 
 use Mmoreram\BaseBundle\DependencyInjection\BaseConfiguration;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
-class BusConfiguration extends BaseConfiguration
+class CommandBusConfiguration extends BaseConfiguration
 {
     /**
      * Configure the root node.

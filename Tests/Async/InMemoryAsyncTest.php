@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Tests\Async;
+namespace Drift\CommandBus\Tests\Async;
 
 /**
  * Class FilesystemAsyncAdapterTest.

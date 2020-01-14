@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Bus;
+namespace Drift\CommandBus\Bus;
 
-use Drift\Bus\Exception\InvalidCommandException;
+use Drift\CommandBus\Exception\InvalidCommandException;
 use React\Promise\PromiseInterface;
 
 /**

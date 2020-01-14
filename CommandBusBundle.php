@@ -13,18 +13,18 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus;
+namespace Drift\CommandBus;
 
-use Drift\Bus\DependencyInjection\BusExtension;
-use Drift\Bus\DependencyInjection\CompilerPass\BusCompilerPass;
+use Drift\CommandBus\DependencyInjection\CommandBusExtension;
+use Drift\CommandBus\DependencyInjection\CompilerPass\BusCompilerPass;
 use Mmoreram\BaseBundle\BaseBundle;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 
 /**
- * Class BusBundle.
+ * Class CommandBusBundle.
  */
-class BusBundle extends BaseBundle
+class CommandBusBundle extends BaseBundle
 {
     /**
      * Returns the bundle's container extension.
@@ -35,7 +35,7 @@ class BusBundle extends BaseBundle
      */
     public function getContainerExtension()
     {
-        return new BusExtension();
+        return new CommandBusExtension();
     }
 
     /**

@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Console;
+namespace Drift\CommandBus\Console;
 
-use Drift\Bus\Async\AsyncAdapter;
-use Drift\Bus\Bus\CommandBus;
+use Drift\CommandBus\Async\AsyncAdapter;
+use Drift\CommandBus\Bus\CommandBus;
 use Drift\Console\OutputPrinter;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;

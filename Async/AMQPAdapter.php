@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Async;
+namespace Drift\CommandBus\Async;
 
 use Bunny\Channel;
 use Bunny\Message;
-use Drift\Bus\Bus\CommandBus;
-use Drift\Bus\Exception\InvalidCommandException;
+use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;

@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Console;
+namespace Drift\CommandBus\Console;
 
 use Drift\Console\OutputPrinter;
 

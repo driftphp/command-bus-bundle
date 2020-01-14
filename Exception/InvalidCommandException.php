@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Drift\Bus\Exception;
+namespace Drift\CommandBus\Exception;
 
 use Exception;
 
