@@ -26,6 +26,7 @@ class FilesystemAsyncAdapterTest extends AsyncAdapterTest
     protected static function getAsyncConfiguration(): array
     {
         return [
+            'adapter' => 'in_memory',
             'in_memory' => [],
         ];
     }
