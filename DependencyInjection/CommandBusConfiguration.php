@@ -18,6 +18,9 @@ namespace Drift\CommandBus\DependencyInjection;
 use Mmoreram\BaseBundle\DependencyInjection\BaseConfiguration;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
+/**
+ * Class CommandBusConfiguration.
+ */
 class CommandBusConfiguration extends BaseConfiguration
 {
     /**
@@ -51,6 +54,9 @@ class CommandBusConfiguration extends BaseConfiguration
                         ->end()
                         ->arrayNode('async_adapter')
                             ->children()
+                                ->enumNode('adapter')
+                                    ->values(['in_memory', 'amqp', 'redis'])
+                                ->end()
                                 ->arrayNode('in_memory')->end()
                                 ->arrayNode('amqp')
                                     ->children()

@@ -69,11 +69,18 @@ class BusCompilerPass implements CompilerPassInterface
     public function createAsyncMiddleware(ContainerBuilder $container): bool
     {
         $asyncAdapters = $container->getParameter('bus.command_bus.async_adapter');
-        if (false === $asyncAdapters) {
+
+        if (
+            empty($asyncAdapters) ||
+            (
+                isset($asyncAdapters['adapter']) &&
+                !isset($asyncAdapters[$asyncAdapters['adapter']])
+            )
+        ) {
             return false;
         }
 
-        $adapterType = array_key_first($asyncAdapters);
+        $adapterType = $asyncAdapters['adapter'] ?? array_key_first($asyncAdapters);
         $adapter = $asyncAdapters[$adapterType];
 
         switch ($adapterType) {

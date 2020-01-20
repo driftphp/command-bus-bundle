@@ -64,6 +64,8 @@ class AMQPAsyncTest extends AsyncAdapterTest
     protected static function getAsyncConfiguration(): array
     {
         return [
+            'adapter' => 'amqp',
+            'in_memory' => [],
             'amqp' => [
                 'client' => 'amqp_1',
                 'queue' => 'commands',
