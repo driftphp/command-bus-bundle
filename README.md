@@ -8,7 +8,7 @@ Tactician, adding some adapters as well for async commands.
 
 Some first steps for you!
 
-- [Go to DOCS](https://driftphp.io/#/?id=bus-bundle)
+- [Go to DOCS](https://driftphp.io/#/?id=the-command-bus)
 
 or
 

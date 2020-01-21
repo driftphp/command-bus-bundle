@@ -389,6 +389,8 @@ class BusCompilerPass implements CompilerPassInterface
                 new Reference('reactphp.event_loop'),
             ])
         );
+
+        $container->setAlias(InMemoryAdapter::class, AsyncAdapter::class)->setPublic(true);
     }
 
     /**
