@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Tests\Async;
 
+use Drift\CommandBus\Async\InMemoryAdapter;
+
 /**
  * Class FilesystemAsyncAdapterTest.
  */
@@ -29,5 +31,13 @@ class FilesystemAsyncAdapterTest extends AsyncAdapterTest
             'adapter' => 'in_memory',
             'in_memory' => [],
         ];
+    }
+
+    /**
+     * Test that inmemory async adapter is public.
+     */
+    public function testAdapterIsPublic()
+    {
+        $this->assertInstanceOf(InMemoryAdapter::class, $this->get(InMemoryAdapter::class));
     }
 }
