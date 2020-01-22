@@ -27,7 +27,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class CommandConsumer.
  */
-class CommandConsumer extends Command
+class CommandConsumerCommand extends Command
 {
     /**
      * @var AsyncAdapter

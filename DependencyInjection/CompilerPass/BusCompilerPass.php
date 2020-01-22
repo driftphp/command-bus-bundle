@@ -22,8 +22,8 @@ use Drift\CommandBus\Async\RedisAdapter;
 use Drift\CommandBus\Bus\CommandBus;
 use Drift\CommandBus\Bus\InlineCommandBus;
 use Drift\CommandBus\Bus\QueryBus;
-use Drift\CommandBus\Console\BusDebugger;
-use Drift\CommandBus\Console\CommandConsumer;
+use Drift\CommandBus\Console\CommandConsumerCommand;
+use Drift\CommandBus\Console\DebugCommandBusCommand;
 use Drift\CommandBus\Exception\InvalidMiddlewareException;
 use Drift\CommandBus\Middleware\AsyncMiddleware;
 use Drift\CommandBus\Middleware\HandlerMiddleware;
@@ -178,7 +178,9 @@ class BusCompilerPass implements CompilerPassInterface
                     false
                 ),
             ]
-        ))->addTag('preload')
+        ))
+            ->addTag('preload')
+            ->setLazy(true)
         );
 
         $container->setAlias(QueryBus::class, 'drift.query_bus');
@@ -202,7 +204,9 @@ class BusCompilerPass implements CompilerPassInterface
                     $asyncBus
                 ),
             ]
-        ))->addTag('preload')
+        ))
+            ->addTag('preload')
+            ->setLazy(true)
         );
 
         $container->setAlias(CommandBus::class, 'drift.command_bus');
@@ -223,7 +227,9 @@ class BusCompilerPass implements CompilerPassInterface
                     false
                 ),
             ]
-        ))->addTag('preload')
+        ))
+            ->addTag('preload')
+            ->setLazy(true)
         );
 
         $container->setAlias(InlineCommandBus::class, 'drift.inline_command_bus');
@@ -339,7 +345,7 @@ class BusCompilerPass implements CompilerPassInterface
      */
     private function createCommandConsumer(ContainerBuilder $container)
     {
-        $consumer = new Definition(CommandConsumer::class, [
+        $consumer = new Definition(CommandConsumerCommand::class, [
             new Reference(AsyncAdapter::class),
             new Reference('drift.inline_command_bus'),
             new Reference('reactphp.event_loop'),
@@ -349,7 +355,7 @@ class BusCompilerPass implements CompilerPassInterface
             'command' => 'bus:consume-commands',
         ]);
 
-        $container->setDefinition(CommandConsumer::class, $consumer);
+        $container->setDefinition(CommandConsumerCommand::class, $consumer);
     }
 
     /**
@@ -359,17 +365,17 @@ class BusCompilerPass implements CompilerPassInterface
      */
     private function createBusDebugger(ContainerBuilder $container)
     {
-        $consumer = new Definition(BusDebugger::class, [
+        $consumer = new Definition(DebugCommandBusCommand::class, [
             new Reference('drift.command_bus'),
             new Reference('drift.inline_command_bus'),
             new Reference('drift.query_bus'),
         ]);
 
         $consumer->addTag('console.command', [
-            'command' => 'debug:bus',
+            'command' => 'debug:command-bus',
         ]);
 
-        $container->setDefinition(BusDebugger::class, $consumer);
+        $container->setDefinition(DebugCommandBusCommand::class, $consumer);
     }
 
     /**
