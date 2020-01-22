@@ -25,10 +25,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class BusDebugger.
+ * Class DebugCommandBusCommand.
  */
-class BusDebugger extends Command
+class DebugCommandBusCommand extends Command
 {
+    protected static $defaultName = 'debug:command-bus';
     /**
      * @var CommandBus
      */
