@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Tests\Bus;
 
+use Drift\CommandBus\Bus\Bus;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\CommandBus\Tests\BusFunctionalTest;
 use Drift\CommandBus\Tests\Context;
@@ -44,7 +45,21 @@ class QueryHandlerTest extends BusFunctionalTest
             ],
         ];
 
+        $configuration['command_bus']['query_bus']['distribution'] = self::distributedBus()
+            ? Bus::DISTRIBUTION_NEXT_TICK
+            : Bus::DISTRIBUTION_INLINE;
+
         return $configuration;
+    }
+
+    /**
+     * Create distributed bus.
+     *
+     * @return bool
+     */
+    protected static function distributedBus(): bool
+    {
+        return false;
     }
 
     /**

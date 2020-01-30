@@ -28,6 +28,7 @@ use Drift\CommandBus\Exception\InvalidMiddlewareException;
 use Drift\CommandBus\Middleware\AsyncMiddleware;
 use Drift\CommandBus\Middleware\HandlerMiddleware;
 use Drift\CommandBus\Middleware\Middleware;
+use React\EventLoop\LoopInterface;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -172,11 +173,13 @@ class BusCompilerPass implements CompilerPassInterface
     {
         $container->setDefinition('drift.query_bus', (new Definition(
             QueryBus::class, [
+                new Reference(LoopInterface::class),
                 $this->createMiddlewaresArray(
                     $container,
                     'query',
                     false
                 ),
+                $container->getParameter('bus.query_bus.distribution'),
             ]
         ))
             ->addTag('preload')
@@ -198,11 +201,13 @@ class BusCompilerPass implements CompilerPassInterface
     ) {
         $container->setDefinition('drift.command_bus', (new Definition(
             CommandBus::class, [
+                new Reference(LoopInterface::class),
                 $this->createMiddlewaresArray(
                     $container,
                     'command',
                     $asyncBus
                 ),
+                $container->getParameter('bus.command_bus.distribution'),
             ]
         ))
             ->addTag('preload')
@@ -221,11 +226,13 @@ class BusCompilerPass implements CompilerPassInterface
     {
         $container->setDefinition('drift.inline_command_bus', (new Definition(
             InlineCommandBus::class, [
+                new Reference(LoopInterface::class),
                 $this->createMiddlewaresArray(
                     $container,
                     'command',
                     false
                 ),
+                $container->getParameter('bus.command_bus.distribution'),
             ]
         ))
             ->addTag('preload')

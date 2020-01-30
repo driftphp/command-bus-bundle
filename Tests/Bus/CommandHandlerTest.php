@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Tests\Bus;
 
+use Drift\CommandBus\Bus\Bus;
 use Drift\CommandBus\Middleware\HandlerMiddleware;
 use Drift\CommandBus\Tests\BusFunctionalTest;
 use Drift\CommandBus\Tests\Command\ChangeAThing;
@@ -44,7 +45,21 @@ class CommandHandlerTest extends BusFunctionalTest
             ],
         ];
 
+        $configuration['command_bus']['command_bus']['distribution'] = self::distributedBus()
+            ? Bus::DISTRIBUTION_NEXT_TICK
+            : Bus::DISTRIBUTION_INLINE;
+
         return $configuration;
+    }
+
+    /**
+     * Create distributed bus.
+     *
+     * @return bool
+     */
+    protected static function distributedBus(): bool
+    {
+        return false;
     }
 
     /**
