@@ -65,7 +65,9 @@ class CommandBusExtension extends BaseExtension
     {
         return [
             'bus.query_bus.middlewares' => $config['query_bus']['middlewares'],
+            'bus.query_bus.distribution' => $config['query_bus']['distribution'],
             'bus.command_bus.middlewares' => $config['command_bus']['middlewares'],
+            'bus.command_bus.distribution' => $config['command_bus']['distribution'],
             'bus.command_bus.async_adapter' => $config['command_bus']['async_adapter'] ?? false,
         ];
     }

@@ -17,7 +17,8 @@ namespace Drift\CommandBus\Bus;
 
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\CommandBus\Middleware\DebugableMiddleware;
-use Drift\CommandBus\Middleware\Middleware;
+use React\EventLoop\LoopInterface;
+use React\Promise\Deferred;
 
 /**
  * Interface Bus.
@@ -25,9 +26,24 @@ use Drift\CommandBus\Middleware\Middleware;
 abstract class Bus
 {
     /**
+     * @var string
+     */
+    const DISTRIBUTION_INLINE = 'inline';
+
+    /**
+     * @var string
+     */
+    const DISTRIBUTION_NEXT_TICK = 'next_tick';
+
+    /**
      * @var callable
      */
     private $middlewareChain;
+
+    /**
+     * @var LoopInterface
+     */
+    private $loop;
 
     /**
      * @var array
@@ -35,14 +51,23 @@ abstract class Bus
     private $middleware;
 
     /**
-     * @param array $middleware
+     * @param LoopInterface $loop
+     * @param array         $middleware
+     * @param string        $distribution
      */
-    public function __construct(array $middleware)
-    {
+    public function __construct(
+        LoopInterface $loop,
+        array $middleware,
+        string $distribution
+    ) {
+        $this->loop = $loop;
         $this->middleware = array_map(function (DebugableMiddleware $middleware) {
             return $middleware->getMiddlewareInfo();
         }, $middleware);
-        $this->middlewareChain = $this->createExecutionChain($middleware);
+
+        $this->middlewareChain = self::DISTRIBUTION_NEXT_TICK === $distribution
+            ? $this->createNextTickExecutionChain($middleware)
+            : $this->createInlineExecutionChain($middleware);
     }
 
     /**
@@ -64,19 +89,49 @@ abstract class Bus
     }
 
     /**
-     * Create execution chain.
+     * Create inline execution chain.
      *
      * @param array $middlewareList
      *
      * @return callable
      */
-    private function createExecutionChain($middlewareList)
+    private function createInlineExecutionChain($middlewareList)
     {
         $lastCallable = function () {};
 
         while ($middleware = array_pop($middlewareList)) {
             $lastCallable = function ($command) use ($middleware, $lastCallable) {
                 return $middleware->execute($command, $lastCallable);
+            };
+        }
+
+        return $lastCallable;
+    }
+
+    /**
+     * Create next tick execution chain.
+     *
+     * @param array $middlewareList
+     *
+     * @return callable
+     */
+    private function createNextTickExecutionChain($middlewareList)
+    {
+        $lastCallable = function () {};
+
+        while ($middleware = array_pop($middlewareList)) {
+            $lastCallable = function ($command) use ($middleware, $lastCallable) {
+                $deferred = new Deferred();
+                $this
+                    ->loop
+                    ->futureTick(function () use ($deferred, $middleware, $command, $lastCallable) {
+                        $deferred->resolve($middleware->execute(
+                            $command,
+                            $lastCallable
+                        ));
+                    });
+
+                return $deferred->promise();
             };
         }
 

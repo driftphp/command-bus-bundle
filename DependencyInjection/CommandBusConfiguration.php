@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\DependencyInjection;
 
+use Drift\CommandBus\Bus\Bus;
 use Mmoreram\BaseBundle\DependencyInjection\BaseConfiguration;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
@@ -36,6 +37,10 @@ class CommandBusConfiguration extends BaseConfiguration
                 ->arrayNode('query_bus')
                     ->addDefaultsIfNotSet()
                     ->children()
+                        ->enumNode('distribution')
+                            ->values([Bus::DISTRIBUTION_INLINE, Bus::DISTRIBUTION_NEXT_TICK])
+                            ->defaultValue(Bus::DISTRIBUTION_INLINE)
+                        ->end()
                         ->arrayNode('middlewares')
                             ->scalarPrototype()
                                 ->defaultValue([])
@@ -47,6 +52,10 @@ class CommandBusConfiguration extends BaseConfiguration
                 ->arrayNode('command_bus')
                     ->addDefaultsIfNotSet()
                     ->children()
+                        ->enumNode('distribution')
+                            ->values([Bus::DISTRIBUTION_INLINE, Bus::DISTRIBUTION_NEXT_TICK])
+                            ->defaultValue(Bus::DISTRIBUTION_INLINE)
+                        ->end()
                         ->arrayNode('middlewares')
                             ->scalarPrototype()
                                 ->defaultValue([])
