@@ -1,37 +1,43 @@
 {
-  "name": "drift/command-bus-bundle",
-  "description": "Bus Bundle for DriftPHP, a framework on top of Symfony and ReactPHP components",
-  "homepage": "https://github.com/driftphp/bus-bundle",
-  "type": "library",
-  "license": "MIT",
+    "name": "drift/command-bus-bundle",
+    "description": "Bus Bundle for DriftPHP, a framework on top of Symfony and ReactPHP components",
+    "homepage": "https://github.com/driftphp/command-bus-bundle",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marc Morera",
+            "email": "yuhu@mmoreram.com"
+        }
+    ],
+    "require": {
+        "php": "^7.3",
 
-  "require": {
-    "php": "^7.3",
-    "mmoreram/base-bundle": "^2.1",
-    "drift/http-kernel": "0.1.*, >=0.1.5",
-    "drift/console-bridge":  "0.1.*",
-    "clue/block-react": "^1.3"
-  },
+        "symfony/console": "^5.0.0",
+        "symfony/dependency-injection": "^5.0.0",
+        "symfony/proxy-manager-bridge": "^5.0.0",
 
-  "require-dev": {
-    "drift/redis-bundle": "0.1.*, >=0.1.2",
-    "drift/amqp-bundle": "0.1.*, >=0.1.1"
-  },
-
-  "suggest": {
-    "drift/redis-bundle": "Install this bundle to use Redis as a queue system",
-    "drift/amqp-bundle": "Install this bundle to use AMQP as a queue system"
-  },
-
-  "autoload": {
-    "psr-4": {
-      "Drift\\CommandBus\\": ""
+        "mmoreram/base-bundle": "^2.1",
+        "drift/http-kernel": "0.1.*, >=0.1.5",
+        "drift/console-bridge": "0.1.*",
+        "clue/block-react": "^1.3"
+    },
+    "require-dev": {
+        "drift/redis-bundle": "0.1.*, >=0.1.2",
+        "drift/amqp-bundle": "0.1.*, >=0.1.1"
+    },
+    "suggest": {
+        "drift/redis-bundle": "Install this bundle to use Redis as a queue system",
+        "drift/amqp-bundle": "Install this bundle to use AMQP as a queue system"
+    },
+    "autoload": {
+        "psr-4": {
+            "Drift\\CommandBus\\": ""
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Drift\\CommandBus\\Tests\\": "Tests/"
+        }
     }
-  },
-
-  "autoload-dev": {
-    "psr-4": {
-      "Drift\\CommandBus\\Tests\\": "Tests/"
-    }
-  }
 }
