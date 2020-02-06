@@ -20,7 +20,7 @@ use Drift\Console\OutputPrinter;
 /**
  * Class ConsumerLineMessage.
  */
-final class ConsumerLineMessage
+final class CommandConsumedLineMessage
 {
     /**
      * @var string

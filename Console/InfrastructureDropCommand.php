@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Console;
 
+use Clue\React\Block;
 use Drift\CommandBus\Async\AsyncAdapter;
-use Drift\CommandBus\Bus\CommandBus;
 use Drift\Console\OutputPrinter;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
@@ -25,19 +25,14 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class CommandConsumer.
+ * Class InfrastructureDeleteCommand.
  */
-class CommandConsumerCommand extends Command
+class InfrastructureDropCommand extends Command
 {
     /**
      * @var AsyncAdapter
      */
     private $asyncAdapter;
-
-    /**
-     * @var CommandBus
-     */
-    private $commandBus;
 
     /**
      * @var LoopInterface
@@ -48,18 +43,15 @@ class CommandConsumerCommand extends Command
      * ConsumeCommand constructor.
      *
      * @param AsyncAdapter  $asyncAdapter
-     * @param CommandBus    $commandBus
      * @param LoopInterface $loop
      */
     public function __construct(
         AsyncAdapter $asyncAdapter,
-        CommandBus $commandBus,
         LoopInterface $loop
     ) {
         parent::__construct();
 
         $this->asyncAdapter = $asyncAdapter;
-        $this->commandBus = $commandBus;
         $this->loop = $loop;
     }
 
@@ -68,13 +60,12 @@ class CommandConsumerCommand extends Command
      */
     protected function configure()
     {
-        $this->setDescription('Start consuming asynchronous commands from the command bus');
+        $this->setDescription('Drops the infrastructure that made command bus work');
         $this->addOption(
-            'limit',
-            null,
-            InputOption::VALUE_OPTIONAL,
-            'Number of jobs to handle before dying',
-            0
+            'force',
+            'f',
+            InputOption::VALUE_NONE,
+            'Force the action'
         );
     }
 
@@ -91,18 +82,21 @@ class CommandConsumerCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $outputPrinter = new OutputPrinter($output);
-        $adapterName = $this->asyncAdapter->getName();
-        (new CommandBusHeaderMessage('', 'Consumer built'))->print($outputPrinter);
-        (new CommandBusHeaderMessage('', 'Using adapter '.$adapterName))->print($outputPrinter);
-        (new CommandBusHeaderMessage('', 'Started listening...'))->print($outputPrinter);
+        if (!$input->getOption('force')) {
+            (new CommandBusHeaderMessage('', 'Please, use the flag --force'))->print($outputPrinter);
+            return 1;
+        }
 
-        $this
+        $adapterName = $this->asyncAdapter->getName();
+        (new CommandBusHeaderMessage('', 'Started dropping infrastructure...'))->print($outputPrinter);
+        (new CommandBusHeaderMessage('', 'Using adapter '.$adapterName))->print($outputPrinter);
+
+        $promise = $this
             ->asyncAdapter
-            ->consume(
-                $this->commandBus,
-                \intval($input->getOption('limit')),
-                $outputPrinter
-            );
+            ->dropInfrastructure($outputPrinter);
+
+        Block\await($promise, $this->loop);
+        (new CommandBusHeaderMessage('', 'Infrastructure dropped'))->print($outputPrinter);
 
         return 0;
     }

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Drift\CommandBus\Async;
 
 use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
 use function Clue\React\Block\await;
@@ -31,7 +32,7 @@ class InMemoryAdapter extends AsyncAdapter
     /**
      * @var array
      */
-    private $queue = [];
+    private $queue = null;
 
     /**
      * @var LoopInterface
@@ -46,6 +47,62 @@ class InMemoryAdapter extends AsyncAdapter
     public function __construct(LoopInterface $loop)
     {
         $this->loop = $loop;
+    }
+
+    /**
+     * Create infrastructure.
+     *
+     * @param OutputPrinter $outputPrinter
+     *
+     * @return PromiseInterface
+     */
+    public function createInfrastructure(OutputPrinter $outputPrinter): PromiseInterface
+    {
+        $this->queue = [];
+        (new CommandBusLineMessage('Local queue created properly'))->print($outputPrinter);
+
+        return new FulfilledPromise();
+    }
+
+    /**
+     * Drop infrastructure.
+     *
+     * @param OutputPrinter $outputPrinter
+     *
+     * @return PromiseInterface
+     */
+    public function dropInfrastructure(OutputPrinter $outputPrinter): PromiseInterface
+    {
+        $this->queue = null;
+        (new CommandBusLineMessage('Local queue dropped properly'))->print($outputPrinter);
+
+        return new FulfilledPromise();
+    }
+
+    /**
+     * Check infrastructure.
+     *
+     * @param OutputPrinter $outputPrinter
+     *
+     * @return PromiseInterface
+     */
+    public function checkInfrastructure(OutputPrinter $outputPrinter): PromiseInterface
+    {
+        is_array($this->queue)
+            ? (new CommandBusLineMessage('Local queue exists'))->print($outputPrinter)
+            : (new CommandBusLineMessage('Local queue does not exist'))->print($outputPrinter);
+
+        return new FulfilledPromise();
+    }
+
+    /**
+     * Get adapter name.
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return 'In Memory (Not for production)';
     }
 
     /**
@@ -92,7 +149,9 @@ class InMemoryAdapter extends AsyncAdapter
                         unset($this->queue[$key]);
                     },
                     function () {},
-                    function () {}
+                    function () {
+                        return true;
+                    }
                 );
 
             $wasLastOne = await($promise, $this->loop);

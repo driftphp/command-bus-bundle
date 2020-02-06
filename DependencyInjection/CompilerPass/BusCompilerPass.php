@@ -18,12 +18,16 @@ namespace Drift\CommandBus\DependencyInjection\CompilerPass;
 use Drift\CommandBus\Async\AMQPAdapter;
 use Drift\CommandBus\Async\AsyncAdapter;
 use Drift\CommandBus\Async\InMemoryAdapter;
+use Drift\CommandBus\Async\PostgreSQLAdapter;
 use Drift\CommandBus\Async\RedisAdapter;
 use Drift\CommandBus\Bus\CommandBus;
 use Drift\CommandBus\Bus\InlineCommandBus;
 use Drift\CommandBus\Bus\QueryBus;
 use Drift\CommandBus\Console\CommandConsumerCommand;
 use Drift\CommandBus\Console\DebugCommandBusCommand;
+use Drift\CommandBus\Console\InfrastructureCheckCommand;
+use Drift\CommandBus\Console\InfrastructureCreateCommand;
+use Drift\CommandBus\Console\InfrastructureDropCommand;
 use Drift\CommandBus\Exception\InvalidMiddlewareException;
 use Drift\CommandBus\Middleware\AsyncMiddleware;
 use Drift\CommandBus\Middleware\HandlerMiddleware;
@@ -57,6 +61,9 @@ class BusCompilerPass implements CompilerPassInterface
 
         if ($asyncBus) {
             $this->createCommandConsumer($container);
+            $this->createInfrastructureCreateCommand($container);
+            $this->createInfrastructureDropCommand($container);
+            $this->createInfrastructureCheckCommand($container);
         }
     }
 
@@ -94,25 +101,19 @@ class BusCompilerPass implements CompilerPassInterface
             case 'redis':
                 $this->createRedisAsyncAdapter($container, $adapter);
                 break;
+            case 'postgresql':
+                $this->createPostgreSQLAsyncAdapter($container, $adapter);
+                break;
             default:
                 return false;
         }
 
-        $container->setDefinition(AsyncMiddleware::class.'\\Factory',
+        $container->setDefinition(AsyncMiddleware::class,
             new Definition(
                 AsyncMiddleware::class, [
                     new Reference(AsyncAdapter::class),
                 ]
             )
-        );
-
-        $container->setDefinition(AsyncMiddleware::class,
-            (new Definition(AsyncMiddleware::class))
-                ->setFactory([
-                    new Reference(AsyncMiddleware::class.'\\Factory'),
-                    'prepare',
-                ])
-                ->addTag('await')
         );
 
         return true;
@@ -359,7 +360,7 @@ class BusCompilerPass implements CompilerPassInterface
         ]);
 
         $consumer->addTag('console.command', [
-            'command' => 'bus:consume-commands',
+            'command' => 'command-bus:consume-commands',
         ]);
 
         $container->setDefinition(CommandConsumerCommand::class, $consumer);
@@ -383,6 +384,63 @@ class BusCompilerPass implements CompilerPassInterface
         ]);
 
         $container->setDefinition(DebugCommandBusCommand::class, $consumer);
+    }
+
+    /**
+     * Create infrastructure creator.
+     *
+     * @param ContainerBuilder $container
+     */
+    private function createInfrastructureCreateCommand(ContainerBuilder $container)
+    {
+        $consumer = new Definition(InfrastructureCreateCommand::class, [
+            new Reference(AsyncAdapter::class),
+            new Reference('reactphp.event_loop'),
+        ]);
+
+        $consumer->addTag('console.command', [
+            'command' => 'command-bus:infra:create',
+        ]);
+
+        $container->setDefinition(InfrastructureCreateCommand::class, $consumer);
+    }
+
+    /**
+     * Create infrastructure dropper.
+     *
+     * @param ContainerBuilder $container
+     */
+    private function createInfrastructureDropCommand(ContainerBuilder $container)
+    {
+        $consumer = new Definition(InfrastructureDropCommand::class, [
+            new Reference(AsyncAdapter::class),
+            new Reference('reactphp.event_loop'),
+        ]);
+
+        $consumer->addTag('console.command', [
+            'command' => 'command-bus:infra:drop',
+        ]);
+
+        $container->setDefinition(InfrastructureDropCommand::class, $consumer);
+    }
+
+    /**
+     * Create infrastructure checker.
+     *
+     * @param ContainerBuilder $container
+     */
+    private function createInfrastructureCheckCommand(ContainerBuilder $container)
+    {
+        $consumer = new Definition(InfrastructureCheckCommand::class, [
+            new Reference(AsyncAdapter::class),
+            new Reference('reactphp.event_loop'),
+        ]);
+
+        $consumer->addTag('console.command', [
+            'command' => 'command-bus:infra:check',
+        ]);
+
+        $container->setDefinition(InfrastructureCheckCommand::class, $consumer);
     }
 
     /**
@@ -423,6 +481,28 @@ class BusCompilerPass implements CompilerPassInterface
                     new Reference('redis.'.$adapter['client'].'_client'),
                     new Reference('reactphp.event_loop'),
                     $adapter['key'] ?? 'commands',
+                ])
+            )->setLazy(true)
+        );
+    }
+
+    /**
+     * Create postgresql async adapter.
+     *
+     * @param ContainerBuilder $container
+     * @param array            $adapter
+     */
+    private function createPostgreSQLAsyncAdapter(
+        ContainerBuilder $container,
+        array $adapter
+    ) {
+        $container->setDefinition(
+            AsyncAdapter::class,
+            (
+                new Definition(PostgreSQLAdapter::class, [
+                    new Reference('postgresql.'.$adapter['client'].'_client'),
+                    new Reference('reactphp.event_loop'),
+                    $adapter['channel'] ?? 'commands',
                 ])
             )->setLazy(true)
         );

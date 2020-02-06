@@ -15,29 +15,23 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Console;
 
+use Clue\React\Block;
 use Drift\CommandBus\Async\AsyncAdapter;
-use Drift\CommandBus\Bus\CommandBus;
 use Drift\Console\OutputPrinter;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class CommandConsumer.
+ * Class InfrastructureCheckCommand.
  */
-class CommandConsumerCommand extends Command
+class InfrastructureCheckCommand extends Command
 {
     /**
      * @var AsyncAdapter
      */
     private $asyncAdapter;
-
-    /**
-     * @var CommandBus
-     */
-    private $commandBus;
 
     /**
      * @var LoopInterface
@@ -48,18 +42,15 @@ class CommandConsumerCommand extends Command
      * ConsumeCommand constructor.
      *
      * @param AsyncAdapter  $asyncAdapter
-     * @param CommandBus    $commandBus
      * @param LoopInterface $loop
      */
     public function __construct(
         AsyncAdapter $asyncAdapter,
-        CommandBus $commandBus,
         LoopInterface $loop
     ) {
         parent::__construct();
 
         $this->asyncAdapter = $asyncAdapter;
-        $this->commandBus = $commandBus;
         $this->loop = $loop;
     }
 
@@ -68,14 +59,7 @@ class CommandConsumerCommand extends Command
      */
     protected function configure()
     {
-        $this->setDescription('Start consuming asynchronous commands from the command bus');
-        $this->addOption(
-            'limit',
-            null,
-            InputOption::VALUE_OPTIONAL,
-            'Number of jobs to handle before dying',
-            0
-        );
+        $this->setDescription('Checks the infrastructure that makes command bus work');
     }
 
     /**
@@ -92,17 +76,15 @@ class CommandConsumerCommand extends Command
     {
         $outputPrinter = new OutputPrinter($output);
         $adapterName = $this->asyncAdapter->getName();
-        (new CommandBusHeaderMessage('', 'Consumer built'))->print($outputPrinter);
+        (new CommandBusHeaderMessage('', 'Started checking infrastructure...'))->print($outputPrinter);
         (new CommandBusHeaderMessage('', 'Using adapter '.$adapterName))->print($outputPrinter);
-        (new CommandBusHeaderMessage('', 'Started listening...'))->print($outputPrinter);
 
-        $this
+        $promise = $this
             ->asyncAdapter
-            ->consume(
-                $this->commandBus,
-                \intval($input->getOption('limit')),
-                $outputPrinter
-            );
+            ->checkInfrastructure($outputPrinter);
+
+        Block\await($promise, $this->loop);
+        (new CommandBusHeaderMessage('', 'Infrastructure checked'))->print($outputPrinter);
 
         return 0;
     }

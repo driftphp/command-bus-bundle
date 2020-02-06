@@ -16,8 +16,10 @@ declare(strict_types=1);
 namespace Drift\CommandBus\Async;
 
 use Bunny\Channel;
+use Bunny\Exception\ClientException;
 use Bunny\Message;
 use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
 use React\EventLoop\LoopInterface;
@@ -61,15 +63,82 @@ class AMQPAdapter extends AsyncAdapter
     }
 
     /**
-     * Prepare.
+     * Get adapter name.
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return 'AMQP';
+    }
+
+    /**
+     * Create infrastructure.
+     *
+     * @param OutputPrinter $outputPrinter
      *
      * @return PromiseInterface
      */
-    public function prepare(): PromiseInterface
+    public function createInfrastructure(OutputPrinter $outputPrinter): PromiseInterface
     {
         return $this
             ->channel
-            ->queueDeclare($this->queueName, false, true);
+            ->queueDeclare($this->queueName, false, true)
+            ->then(function () use ($outputPrinter) {
+                (new CommandBusLineMessage(sprintf('Queue with name %s created properly', $this->queueName)))->print($outputPrinter);
+            }, function (\Exception $exception) use ($outputPrinter) {
+                (new CommandBusLineMessage(sprintf(
+                    'Queue with name %s could not be created. Reason - %s',
+                    $this->queueName,
+                    $exception->getMessage()
+                )))->print($outputPrinter);
+            });
+    }
+
+    /**
+     * Drop infrastructure.
+     *
+     * @param OutputPrinter $outputPrinter
+     *
+     * @return PromiseInterface
+     */
+    public function dropInfrastructure(OutputPrinter $outputPrinter): PromiseInterface
+    {
+        return $this
+            ->channel
+            ->queueDelete($this->queueName, false, true)
+            ->then(function () use ($outputPrinter) {
+                (new CommandBusLineMessage(sprintf('Queue with name %s deleted properly', $this->queueName)))->print($outputPrinter);
+            }, function (ClientException $exception) use ($outputPrinter) {
+                (new CommandBusLineMessage(sprintf(
+                    'Queue with name %s was impossible to be deleted. Reason - %s',
+                    $this->queueName,
+                    $exception->getMessage()
+                )))->print($outputPrinter);
+            });
+    }
+
+    /**
+     * Check infrastructure.
+     *
+     * @param OutputPrinter $outputPrinter
+     *
+     * @return PromiseInterface
+     */
+    public function checkInfrastructure(OutputPrinter $outputPrinter): PromiseInterface
+    {
+        return $this
+            ->channel
+            ->queueDeclare($this->queueName, true, true)
+            ->then(function ($_) use ($outputPrinter) {
+                (new CommandBusLineMessage(sprintf('Queue with name %s exists', $this->queueName)))->print($outputPrinter);
+            }, function (ClientException $exception) use ($outputPrinter) {
+                (new CommandBusLineMessage(sprintf(
+                    'Queue with name %s does not exist. Reason - %s',
+                    $this->queueName,
+                    $exception->getMessage()
+                )))->print($outputPrinter);
+            });
     }
 
     /**
@@ -101,34 +170,32 @@ class AMQPAdapter extends AsyncAdapter
         $this->resetIterations($limit);
 
         $this
-            ->prepare()
+            ->channel
+            ->qos(0, 1, true)
             ->then(function () use ($bus, $outputPrinter) {
                 return $this
                     ->channel
-                    ->qos(0, 1, true)
-                    ->then(function () use ($bus, $outputPrinter) {
+                    ->consume(function (Message $message, Channel $channel) use ($bus, $outputPrinter) {
                         return $this
-                            ->channel
-                            ->consume(function (Message $message, Channel $channel) use ($bus, $outputPrinter) {
-                                return $this
-                                    ->executeCommand(
-                                        $bus,
-                                        unserialize($message->content),
-                                        $outputPrinter,
-                                        function () use ($message, $channel) {
-                                            return $channel->ack($message);
-                                        },
-                                        function () use ($message, $channel) {
-                                            return $channel->nack($message);
-                                        },
-                                        function () {
-                                            $this
-                                                ->loop
-                                                ->stop();
-                                        }
-                                    );
-                            }, $this->queueName);
-                    });
+                            ->executeCommand(
+                                $bus,
+                                unserialize($message->content),
+                                $outputPrinter,
+                                function () use ($message, $channel) {
+                                    return $channel->ack($message);
+                                },
+                                function () use ($message, $channel) {
+                                    return $channel->nack($message);
+                                },
+                                function () {
+                                    $this
+                                        ->loop
+                                        ->stop();
+
+                                    return true;
+                                }
+                            );
+                    }, $this->queueName);
             });
 
         $this

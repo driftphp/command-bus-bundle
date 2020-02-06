@@ -65,6 +65,14 @@ class DebugCommandBusCommand extends Command
     }
 
     /**
+     * Configures the current command.
+     */
+    protected function configure()
+    {
+        $this->setDescription('Dumps the command bus configuration, including middlewares and handlers');
+    }
+
+    /**
      * Executes the current command.
      *
      * This method is not abstract because you can use this class
