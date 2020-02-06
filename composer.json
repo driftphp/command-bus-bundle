@@ -24,11 +24,13 @@
     },
     "require-dev": {
         "drift/redis-bundle": "0.1.*, >=0.1.2",
-        "drift/amqp-bundle": "0.1.*, >=0.1.1"
+        "drift/amqp-bundle": "0.1.*, >=0.1.1",
+        "drift/postgresql-bundle": "0.1.*"
     },
     "suggest": {
         "drift/redis-bundle": "Install this bundle to use Redis as a queue system",
-        "drift/amqp-bundle": "Install this bundle to use AMQP as a queue system"
+        "drift/amqp-bundle": "Install this bundle to use AMQP as a queue system",
+        "drift/postgresql-bundle": "Install this bundle to use PostgreSQL as a queue system"
     },
     "autoload": {
         "psr-4": {

@@ -86,6 +86,24 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
     abstract protected static function getAsyncConfiguration(): array;
 
     /**
+     * Test infrastructure.
+     */
+    public function testInfrastructure()
+    {
+        $output = $this->dropInfrastructure();
+        $this->assertContains('dropped', $output);
+
+        $output = $this->createInfrastructure();
+        $this->assertContains('created properly', $output);
+
+        $output = $this->checkInfrastructure();
+        $this->assertContains('exists', $output);
+
+        $output = $this->dropInfrastructure();
+        $this->assertContains('dropped', $output);
+    }
+
+    /**
      * Test by reading only 1 command.
      *
      * @group async1
@@ -93,6 +111,8 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
     public function test1Command()
     {
         @unlink('/tmp/a.thing');
+        $this->resetInfrastructure();
+
         $promise1 = $this
             ->getCommandBus()
             ->execute(new ChangeAThing('thing'));
@@ -112,7 +132,7 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         $this->assertNull($this->getContextValue('middleware1'));
         $this->assertFalse(file_exists('/tmp/a.thing'));
         $output = $this->runCommand([
-            'bus:consume-commands',
+            'command-bus:consume-commands',
             '--limit' => 1,
         ]);
 
@@ -122,7 +142,7 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         $this->assertTrue(file_exists('/tmp/a.thing'));
 
         $output2 = $this->runCommand([
-            'bus:consume-commands',
+            'command-bus:consume-commands',
             '--limit' => 1,
         ]);
 
@@ -138,6 +158,8 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
      */
     public function test2Commands()
     {
+        $this->resetInfrastructure();
+
         $promises[] = $this
             ->getCommandBus()
             ->execute(new ChangeAThing('thing'));
@@ -153,7 +175,7 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         awaitAll($promises, $this->getLoop());
 
         $output = $this->runCommand([
-            'bus:consume-commands',
+            'command-bus:consume-commands',
             '--limit' => 2,
         ]);
 
@@ -162,12 +184,59 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
 
         $output = $this->runCommand([
-            'bus:consume-commands',
+            'command-bus:consume-commands',
             '--limit' => 1,
         ]);
 
         $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAThing", $output);
         $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
         $this->assertContains("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
+    }
+
+    /**
+     * Reset infrastructure.
+     */
+    private function resetInfrastructure()
+    {
+        $this->dropInfrastructure();
+        $this->createInfrastructure();
+    }
+
+    /**
+     * Drop infrastructure.
+     *
+     * @return string
+     */
+    private function dropInfrastructure(): string
+    {
+        return $this->runCommand([
+            'command-bus:infra:drop',
+            '--force' => true,
+        ]);
+    }
+
+    /**
+     * Create infrastructure.
+     *
+     * @return string
+     */
+    private function createInfrastructure(): string
+    {
+        return $this->runCommand([
+            'command-bus:infra:create',
+            '--force' => true,
+        ]);
+    }
+
+    /**
+     * Check infrastructure.
+     *
+     * @return string
+     */
+    private function checkInfrastructure(): string
+    {
+        return $this->runCommand([
+            'command-bus:infra:check',
+        ]);
     }
 }

@@ -17,10 +17,12 @@ namespace Drift\CommandBus\Async;
 
 use Clue\React\Redis\Client;
 use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
 use function Clue\React\Block\await;
 use React\EventLoop\LoopInterface;
+use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 
 /**
@@ -61,6 +63,61 @@ class RedisAdapter extends AsyncAdapter
     }
 
     /**
+     * Get adapter name.
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return 'Redis';
+    }
+
+    /**
+     * Create infrastructure.
+     *
+     * @param OutputPrinter $outputPrinter
+     *
+     * @return PromiseInterface
+     */
+    public function createInfrastructure(OutputPrinter $outputPrinter): PromiseInterface
+    {
+        (new CommandBusLineMessage('List created properly. No need to be created previously'))->print($outputPrinter);
+
+        return new FulfilledPromise();
+    }
+
+    /**
+     * Drop infrastructure.
+     *
+     * @param OutputPrinter $outputPrinter
+     *
+     * @return PromiseInterface
+     */
+    public function dropInfrastructure(OutputPrinter $outputPrinter): PromiseInterface
+    {
+        return $this
+            ->redis
+            ->del($this->key);
+    }
+
+    /**
+     * Check infrastructure.
+     *
+     * @param OutputPrinter $outputPrinter
+     *
+     * @return PromiseInterface
+     */
+    public function checkInfrastructure(OutputPrinter $outputPrinter): PromiseInterface
+    {
+        (new CommandBusLineMessage(sprintf(
+            'List with name %s exists or can be automatically created with the first push',
+            $this->key
+        )))->print($outputPrinter);
+
+        return new FulfilledPromise();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function enqueue($command): PromiseInterface
@@ -97,7 +154,9 @@ class RedisAdapter extends AsyncAdapter
                         $outputPrinter,
                         function () {},
                         function () {},
-                        function () {}
+                        function () {
+                            return true;
+                        }
                     );
                 });
 

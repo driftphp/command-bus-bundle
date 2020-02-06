@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Drift\CommandBus\Async;
 
 use Drift\CommandBus\Bus\CommandBus;
-use Drift\CommandBus\Console\ConsumerLineMessage;
+use Drift\CommandBus\Console\CommandConsumedLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\CommandBus\Exception\MissingHandlerException;
 use Drift\Console\OutputPrinter;
@@ -45,14 +45,38 @@ abstract class AsyncAdapter
     private $limit = self::UNLIMITED;
 
     /**
-     * Prepare.
+     * Get adapter name.
+     *
+     * @return string
+     */
+    abstract public function getName(): string;
+
+    /**
+     * Create infrastructure.
+     *
+     * @param OutputPrinter $outputPrinter
      *
      * @return PromiseInterface
      */
-    public function prepare(): PromiseInterface
-    {
-        return new FulfilledPromise();
-    }
+    abstract public function createInfrastructure(OutputPrinter $outputPrinter): PromiseInterface;
+
+    /**
+     * Drop infrastructure.
+     *
+     * @param OutputPrinter $outputPrinter
+     *
+     * @return PromiseInterface
+     */
+    abstract public function dropInfrastructure(OutputPrinter $outputPrinter): PromiseInterface;
+
+    /**
+     * Check infrastructure.
+     *
+     * @param OutputPrinter $outputPrinter
+     *
+     * @return PromiseInterface
+     */
+    abstract public function checkInfrastructure(OutputPrinter $outputPrinter): PromiseInterface;
 
     /**
      * Enqueue.
@@ -106,10 +130,10 @@ abstract class AsyncAdapter
             ->then(function () use ($from, $outputPrinter, $command, $ok, $finish) {
                 $to = microtime(true);
 
-                (new ConsumerLineMessage(
+                (new CommandConsumedLineMessage(
                     $command,
                     TimeFormatter::formatTime($to - $from),
-                    ConsumerLineMessage::CONSUMED
+                    CommandConsumedLineMessage::CONSUMED
                 ))->print($outputPrinter);
 
                 return (new FulfilledPromise())
@@ -121,24 +145,21 @@ abstract class AsyncAdapter
                             return (new FulfilledPromise())
                                 ->then(function () use ($finish) {
                                     return $finish();
-                                })
-                                ->then(function () {
-                                    return true;
                                 });
                         }
 
-                        return false;
+                        return null;
                     });
             }, function (\Exception $exception) use ($from, $outputPrinter, $command, $ok, $ko) {
                 $to = microtime(true);
                 $ignorable = $exception instanceof MissingHandlerException;
 
-                (new ConsumerLineMessage(
+                (new CommandConsumedLineMessage(
                     $command,
                     TimeFormatter::formatTime($to - $from),
                     $ignorable
-                        ? ConsumerLineMessage::IGNORED
-                        : ConsumerLineMessage::REJECTED
+                        ? CommandConsumedLineMessage::IGNORED
+                        : CommandConsumedLineMessage::REJECTED
                 ))->print($outputPrinter);
 
                 return (
@@ -153,7 +174,7 @@ abstract class AsyncAdapter
                             })
                     )
                     ->then(function () {
-                        return false;
+                        return null;
                     });
             });
     }

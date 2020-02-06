@@ -5,6 +5,11 @@ jobs:
       - image: circleci/php:7.3-cli
       - image: redis
       - image: rabbitmq
+      - image: postgres:alpine
+        environment:
+          POSTGRES_PASSWORD: root
+          POSTGRES_USER: root
+          POSTGRES_DB: commands
 
     working_directory: ~/project
     steps:
@@ -35,6 +40,11 @@ jobs:
       - image: circleci/php:7.4-cli
       - image: redis
       - image: rabbitmq
+      - image: postgres:alpine
+        environment:
+          POSTGRES_PASSWORD: root
+          POSTGRES_USER: root
+          POSTGRES_DB: commands
 
     working_directory: ~/project
     steps:

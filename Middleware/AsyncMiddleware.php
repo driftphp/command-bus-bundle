@@ -39,19 +39,6 @@ class AsyncMiddleware implements DebugableMiddleware
     }
 
     /**
-     * @return PromiseInterface
-     */
-    public function prepare(): PromiseInterface
-    {
-        return $this
-            ->asyncAdapter
-            ->prepare()
-            ->then(function () {
-                return $this;
-            });
-    }
-
-    /**
      * Handle.
      *
      * @param object $command

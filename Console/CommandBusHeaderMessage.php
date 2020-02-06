@@ -20,7 +20,7 @@ use Drift\Console\OutputPrinter;
 /**
  * Class ConsumerHeaderMessage.
  */
-final class ConsumerHeaderMessage
+final class CommandBusHeaderMessage
 {
     private $elapsedTime;
     private $message;
@@ -48,7 +48,7 @@ final class ConsumerHeaderMessage
     {
         $color = '32';
 
-        $outputPrinter->print("\033[01;{$color}mCONSM\033[0m ");
+        $outputPrinter->print("\033[01;{$color}mBUS\033[0m ");
         $outputPrinter->print("(\e[00;37m".$this->elapsedTime.' | '.((int) (memory_get_usage() / 1000000))." MB\e[0m)");
         $outputPrinter->print(" {$this->message}");
         $outputPrinter->printLine();
