@@ -7,6 +7,16 @@ services:
       - "6379:6379"
 
   amqp:
-    image: "rabbitmq:3"
+    image: "rabbitmq:3-management"
     ports:
       - "5672:5672"
+      - "15672:15672"
+
+  postgres:
+    image: "postgres:alpine"
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: root
+      POSTGRES_DB: commands
+    ports:
+      - "5432:5432"

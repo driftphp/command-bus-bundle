@@ -7,6 +7,7 @@ services:
 
   Drift\CommandBus\Tests\Middleware\:
     resource: 'Middleware/.'
+    exclude: 'Middleware/*Test.php'
 
   Drift\CommandBus\Tests\QueryHandler\:
     resource: 'QueryHandler/.'
