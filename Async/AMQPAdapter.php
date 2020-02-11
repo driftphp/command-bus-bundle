@@ -106,7 +106,7 @@ class AMQPAdapter extends AsyncAdapter
     {
         return $this
             ->channel
-            ->queueDelete($this->queueName, false, true)
+            ->queueDelete($this->queueName, false, false)
             ->then(function () use ($outputPrinter) {
                 (new CommandBusLineMessage(sprintf('Queue with name %s deleted properly', $this->queueName)))->print($outputPrinter);
             }, function (ClientException $exception) use ($outputPrinter) {

@@ -25,6 +25,7 @@ use Drift\CommandBus\Tests\CommandHandler\ChangeAThingHandler;
 use Drift\CommandBus\Tests\CommandHandler\ChangeYetAnotherThingHandler;
 use Drift\CommandBus\Tests\Context;
 use Drift\CommandBus\Tests\Middleware\Middleware1;
+use Symfony\Component\Process\Process;
 use function Clue\React\Block\await;
 use function Clue\React\Block\awaitAll;
 
@@ -105,8 +106,6 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
 
     /**
      * Test by reading only 1 command.
-     *
-     * @group async1
      */
     public function test1Command()
     {
@@ -129,22 +128,21 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         await($promise2, $this->getLoop());
         await($promise3, $this->getLoop());
 
-        $this->assertNull($this->getContextValue('middleware1'));
+        if ($this instanceof InMemoryAsyncTest) {
+            $this->assertNull($this->getContextValue('middleware1'));
+        }
+
         $this->assertFalse(file_exists('/tmp/a.thing'));
-        $output = $this->runCommand([
-            'command-bus:consume-commands',
-            '--limit' => 1,
-        ]);
+        $output = $this->consumeCommands(1);
 
         $this->assertContains("\033[01;32mConsumed\033[0m ChangeAThing", $output);
         $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
-        $this->assertTrue($this->getContextValue('middleware1'));
-        $this->assertTrue(file_exists('/tmp/a.thing'));
+        if ($this instanceof InMemoryAsyncTest) {
+            $this->assertTrue($this->getContextValue('middleware1'));
+        }
 
-        $output2 = $this->runCommand([
-            'command-bus:consume-commands',
-            '--limit' => 1,
-        ]);
+        $this->assertTrue(file_exists('/tmp/a.thing'));
+        $output2 = $this->consumeCommands(1);
 
         $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAThing", $output2);
         $this->assertContains("\033[01;36mIgnored \033[0m ChangeBThing", $output2);
@@ -153,8 +151,6 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
 
     /**
      * Test by reading 2 commands.
-     *
-     * @group async2
      */
     public function test2Commands()
     {
@@ -174,19 +170,12 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
 
         awaitAll($promises, $this->getLoop());
 
-        $output = $this->runCommand([
-            'command-bus:consume-commands',
-            '--limit' => 2,
-        ]);
+        $output = $this->consumeCommands(2);
 
         $this->assertContains("\033[01;32mConsumed\033[0m ChangeAThing", $output);
         $this->assertContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
         $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
-
-        $output = $this->runCommand([
-            'command-bus:consume-commands',
-            '--limit' => 1,
-        ]);
+        $output = $this->consumeCommands(1);
 
         $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAThing", $output);
         $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
@@ -194,7 +183,47 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
     }
 
     /**
+     * Test async commands
+     */
+    public function testAsyncCommands()
+    {
+        $this->resetInfrastructure();
+
+        $process = $this->runAsyncCommand([
+            'command-bus:consume-commands'
+        ]);
+
+        usleep(200000);
+
+        $promise1 = $this
+            ->getCommandBus()
+            ->execute(new ChangeAThing('thing'));
+
+        await($promise1, $this->getLoop());
+        usleep(200000);
+
+        $promises = [];
+        $promises[] = $this
+            ->getCommandBus()
+            ->execute(new ChangeAnotherThing('thing'));
+
+        $promises[] = $this
+            ->getCommandBus()
+            ->execute(new ChangeYetAnotherThing('thing'));
+
+        awaitAll($promises, $this->getLoop());
+        usleep(200000);
+        $output = $process->getOutput();
+        $this->assertContains("\033[01;32mConsumed\033[0m ChangeAThing", $output);
+        $this->assertContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
+        $this->assertContains("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
+        $process->stop();
+    }
+
+    /**
      * Reset infrastructure.
+     *
+     * We wait .1 second to sure that the infrastructure is properly created
      */
     private function resetInfrastructure()
     {
@@ -226,6 +255,27 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
             'command-bus:infra:create',
             '--force' => true,
         ]);
+    }
+
+    /**
+     * Consume commands
+     *
+     * @param int $limit
+     *
+     * @return string
+     */
+    protected function consumeCommands(int $limit): string
+    {
+        $process = $this->runAsyncCommand([
+            'command-bus:consume-commands',
+            "--limit=$limit",
+        ]);
+
+        while($process->isRunning()) {
+            usleep(100000);
+        }
+
+        return $process->getOutput();
     }
 
     /**
