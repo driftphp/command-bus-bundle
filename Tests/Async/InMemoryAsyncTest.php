@@ -42,7 +42,7 @@ class InMemoryAsyncTest extends AsyncAdapterTest
     }
 
     /**
-     * Test async commands
+     * Test async commands.
      */
     public function testAsyncCommands()
     {
@@ -50,7 +50,7 @@ class InMemoryAsyncTest extends AsyncAdapterTest
     }
 
     /**
-     * Consume commands
+     * Consume commands.
      *
      * @param int $limit
      *
@@ -60,7 +60,7 @@ class InMemoryAsyncTest extends AsyncAdapterTest
     {
         return $this->runCommand([
             'command-bus:consume-commands',
-            "--limit" => $limit,
+            '--limit' => $limit,
         ]);
     }
 }

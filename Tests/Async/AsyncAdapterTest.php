@@ -25,7 +25,6 @@ use Drift\CommandBus\Tests\CommandHandler\ChangeAThingHandler;
 use Drift\CommandBus\Tests\CommandHandler\ChangeYetAnotherThingHandler;
 use Drift\CommandBus\Tests\Context;
 use Drift\CommandBus\Tests\Middleware\Middleware1;
-use Symfony\Component\Process\Process;
 use function Clue\React\Block\await;
 use function Clue\React\Block\awaitAll;
 
@@ -183,14 +182,14 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
     }
 
     /**
-     * Test async commands
+     * Test async commands.
      */
     public function testAsyncCommands()
     {
         $this->resetInfrastructure();
 
         $process = $this->runAsyncCommand([
-            'command-bus:consume-commands'
+            'command-bus:consume-commands',
         ]);
 
         usleep(200000);
@@ -258,7 +257,7 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
     }
 
     /**
-     * Consume commands
+     * Consume commands.
      *
      * @param int $limit
      *
@@ -271,7 +270,7 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
             "--limit=$limit",
         ]);
 
-        while($process->isRunning()) {
+        while ($process->isRunning()) {
             usleep(100000);
         }
 

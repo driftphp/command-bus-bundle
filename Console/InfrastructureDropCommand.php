@@ -84,6 +84,7 @@ class InfrastructureDropCommand extends Command
         $outputPrinter = new OutputPrinter($output);
         if (!$input->getOption('force')) {
             (new CommandBusHeaderMessage('', 'Please, use the flag --force'))->print($outputPrinter);
+
             return 1;
         }
 

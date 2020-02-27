@@ -19,6 +19,7 @@ use Drift\CommandBus\Bus\Bus;
 use Drift\CommandBus\Bus\CommandBus;
 use Drift\CommandBus\Bus\InlineCommandBus;
 use Drift\CommandBus\Bus\QueryBus;
+use Drift\CommandBus\Middleware\DiscriminableMiddleware;
 use Drift\CommandBus\Middleware\HandlerMiddleware;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -110,6 +111,12 @@ class DebugCommandBusCommand extends Command
 
         foreach ($middlewareList as $middleware) {
             $output->writeln('  - '.$middleware['class'].'::'.$middleware['method']);
+
+            if (DiscriminableMiddleware::class === $middleware['class']) {
+                foreach ($middleware['handled_objects'] as $object) {
+                    $output->writeln('      > '.$object);
+                }
+            }
 
             if (HandlerMiddleware::class === $middleware['class']) {
                 foreach ($middleware['handlers'] as $object => $handler) {
