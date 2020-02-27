@@ -64,6 +64,16 @@ class Middleware implements DebugableMiddleware
      */
     public function execute($command, callable $next): PromiseInterface
     {
+        $middleware = $this->middleware;
+
+        if ($middleware instanceof DiscriminableMiddleware) {
+            $onlyHandle = $middleware->onlyHandle();
+
+            if (empty(array_intersect($onlyHandle, $this->getNamespaceCollectionOfClass($command)))) {
+                return $next($command);
+            }
+        }
+
         $result = $this
             ->middleware
             ->{$this->method}($command, $next);
@@ -80,9 +90,33 @@ class Middleware implements DebugableMiddleware
      */
     public function getMiddlewareInfo(): array
     {
-        return [
+        $info = [
             'class' => get_class($this->middleware),
             'method' => $this->method,
         ];
+
+        if ($this->middleware instanceof DiscriminableMiddleware) {
+            $info['handled_objects'] = $this
+                ->middleware
+                ->onlyHandle();
+        }
+
+        return $info;
+    }
+
+    /**
+     * Return class namespace, all parent namespaces and interfaces of a class.
+     *
+     * @param object $object
+     *
+     * @return string[]
+     */
+    private function getNamespaceCollectionOfClass($object): array
+    {
+        return array_merge(
+            [get_class($object)],
+            class_parents($object, false),
+            class_implements($object, false)
+        );
     }
 }

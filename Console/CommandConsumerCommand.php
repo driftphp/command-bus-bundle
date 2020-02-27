@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Drift\CommandBus\Console;
 
 use Drift\CommandBus\Async\AsyncAdapter;
-use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Bus\InlineCommandBus;
 use Drift\Console\OutputPrinter;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
@@ -35,7 +35,7 @@ class CommandConsumerCommand extends Command
     private $asyncAdapter;
 
     /**
-     * @var CommandBus
+     * @var InlineCommandBus
      */
     private $commandBus;
 
@@ -47,13 +47,13 @@ class CommandConsumerCommand extends Command
     /**
      * ConsumeCommand constructor.
      *
-     * @param AsyncAdapter  $asyncAdapter
-     * @param CommandBus    $commandBus
-     * @param LoopInterface $loop
+     * @param AsyncAdapter     $asyncAdapter
+     * @param InlineCommandBus $commandBus
+     * @param LoopInterface    $loop
      */
     public function __construct(
         AsyncAdapter $asyncAdapter,
-        CommandBus $commandBus,
+        InlineCommandBus $commandBus,
         LoopInterface $loop
     ) {
         parent::__construct();

@@ -17,7 +17,9 @@ namespace Drift\CommandBus\Tests\Bus;
 
 use Drift\CommandBus\Middleware\HandlerMiddleware;
 use Drift\CommandBus\Tests\BusFunctionalTest;
+use Drift\CommandBus\Tests\Command\ChangeAThing;
 use Drift\CommandBus\Tests\Context;
+use Drift\CommandBus\Tests\Middleware\DiscriminableMiddleware1;
 use Drift\CommandBus\Tests\Middleware\Middleware1;
 use Drift\CommandBus\Tests\Middleware\Middleware2;
 use Drift\CommandBus\Tests\Query\GetAnotherThing;
@@ -62,6 +64,7 @@ class QueryHandlerWithMiddleware extends BusFunctionalTest
                 'middlewares' => [
                     Middleware1::class.'::anotherMethod',
                     Middleware2::class,
+                    DiscriminableMiddleware1::class,
                 ],
             ],
         ];
@@ -90,6 +93,13 @@ class QueryHandlerWithMiddleware extends BusFunctionalTest
             [
                 'class' => Middleware2::class,
                 'method' => 'execute',
+            ],
+            [
+                'class' => DiscriminableMiddleware1::class,
+                'method' => 'execute',
+                'handled_objects' => [
+                    ChangeAThing::class,
+                ],
             ],
             [
                 'class' => HandlerMiddleware::class,

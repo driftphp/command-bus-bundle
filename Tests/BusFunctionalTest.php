@@ -199,6 +199,16 @@ abstract class BusFunctionalTest extends BaseFunctionalTest
     }
 
     /**
+     * Reset context.
+     *
+     * @return mixed
+     */
+    protected function resetContext()
+    {
+        return $this->get(Context::class)->values = [];
+    }
+
+    /**
      * Runs a command and returns its output as a string value.
      *
      * @param array $command

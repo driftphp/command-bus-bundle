@@ -1,6 +1,6 @@
 {
     "name": "drift/command-bus-bundle",
-    "description": "Bus Bundle for DriftPHP, a framework on top of Symfony and ReactPHP components",
+    "description": "Command Bus for DriftPHP, a framework on top of Symfony and ReactPHP components",
     "homepage": "https://github.com/driftphp/command-bus-bundle",
     "type": "library",
     "license": "MIT",
@@ -16,7 +16,6 @@
         "symfony/console": "^5.0.0",
         "symfony/dependency-injection": "^5.0.0",
         "symfony/proxy-manager-bridge": "^5.0.0",
-        "symfony/process": "^5.0.0",
 
         "mmoreram/base-bundle": "^2.1.2",
         "drift/http-kernel": "0.1.*, >=0.1.5",
@@ -26,7 +25,8 @@
     "require-dev": {
         "drift/redis-bundle": "0.1.*, >=0.1.2",
         "drift/amqp-bundle": "0.1.*, >=0.1.1",
-        "drift/postgresql-bundle": "0.1.*, >=0.1.1"
+        "drift/postgresql-bundle": "0.1.*, >=0.1.1",
+        "symfony/process": "^5.0.0"
     },
     "suggest": {
         "drift/redis-bundle": "Install this bundle to use Redis as a queue system",
