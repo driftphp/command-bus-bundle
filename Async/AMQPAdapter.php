@@ -22,6 +22,7 @@ use Drift\CommandBus\Bus\CommandBus;
 use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
+use Drift\EventLoop\EventLoopUtils;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
 
@@ -168,14 +169,15 @@ class AMQPAdapter extends AsyncAdapter
         OutputPrinter $outputPrinter
     ) {
         $this->resetIterations($limit);
+        $forced = false;
 
         $this
             ->channel
             ->qos(0, 1, true)
-            ->then(function () use ($bus, $outputPrinter) {
+            ->then(function () use ($bus, $outputPrinter, &$forced) {
                 return $this
                     ->channel
-                    ->consume(function (Message $message, Channel $channel) use ($bus, $outputPrinter) {
+                    ->consume(function (Message $message, Channel $channel) use ($bus, $outputPrinter, &$forced) {
                         return $this
                             ->executeCommand(
                                 $bus,
@@ -187,7 +189,8 @@ class AMQPAdapter extends AsyncAdapter
                                 function () use ($message, $channel) {
                                     return $channel->nack($message);
                                 },
-                                function () {
+                                function () use (&$forced) {
+                                    $forced = true;
                                     $this
                                         ->loop
                                         ->stop();
@@ -198,8 +201,6 @@ class AMQPAdapter extends AsyncAdapter
                     }, $this->queueName);
             });
 
-        $this
-            ->loop
-            ->run();
+        EventLoopUtils::runLoop($this->loop, 2, $forced);
     }
 }
