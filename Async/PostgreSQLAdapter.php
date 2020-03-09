@@ -19,6 +19,7 @@ use Drift\CommandBus\Bus\CommandBus;
 use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
+use Drift\EventLoop\EventLoopUtils;
 use function Clue\React\Block\await;
 use PgAsync\Client;
 use PgAsync\Message\NotificationResponse;
@@ -214,6 +215,7 @@ SQL
     ) {
         $this->resetIterations($limit);
         $keepChecking = $this->consumeAvailableElements($bus, $outputPrinter);
+        $forced = false;
 
         if (!$keepChecking) {
             return;
@@ -222,10 +224,10 @@ SQL
         $this
             ->postgres
             ->listen($this->key)
-            ->subscribe(function (NotificationResponse $message) use ($bus, $outputPrinter) {
+            ->subscribe(function (NotificationResponse $message) use ($bus, $outputPrinter, &$forced) {
                 return $this
                     ->getAndDeleteKeyFromQueue()
-                    ->then(function ($message) use ($bus, $outputPrinter) {
+                    ->then(function ($message) use ($bus, $outputPrinter, &$forced) {
                         if (empty($message)) {
                             return true;
                         }
@@ -236,10 +238,12 @@ SQL
                             $outputPrinter,
                             function () {},
                             function () {},
-                            function () {
+                            function () use (&$forced) {
                                 $this
                                     ->loop
                                     ->stop();
+
+                                $forced = true;
 
                                 return false;
                             }
@@ -247,9 +251,7 @@ SQL
                     });
             });
 
-        $this
-            ->loop
-            ->run();
+        EventLoopUtils::runLoop($this->loop, 2, $forced);
     }
 
     /**

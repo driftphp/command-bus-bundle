@@ -84,9 +84,9 @@ class InfrastructureCreateCommand extends Command
         $outputPrinter = new OutputPrinter($output);
         if (!$input->getOption('force')) {
             (new CommandBusHeaderMessage('', 'Please, use the flag --force'))->print($outputPrinter);
+
             return 1;
         }
-
 
         $adapterName = $this->asyncAdapter->getName();
         (new CommandBusHeaderMessage('', 'Started building infrastructure...'))->print($outputPrinter);
