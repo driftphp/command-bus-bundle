@@ -19,6 +19,7 @@ use Bunny\Channel;
 use Bunny\Exception\ClientException;
 use Bunny\Message;
 use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Console\CommandBusHeaderMessage;
 use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
@@ -201,6 +202,8 @@ class AMQPAdapter extends AsyncAdapter
                     }, $this->queueName);
             });
 
-        EventLoopUtils::runLoop($this->loop, 2, $forced);
+        EventLoopUtils::runLoop($this->loop, 2, function ($iterationsMissing) use ($outputPrinter) {
+            (new CommandBusHeaderMessage('', 'EventLoop stopped. This consumer will run it '.$iterationsMissing.' more times.'))->print($outputPrinter);
+        }, $forced);
     }
 }

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Drift\CommandBus\Async;
 
 use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Console\CommandBusHeaderMessage;
 use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
@@ -251,7 +252,9 @@ SQL
                     });
             });
 
-        EventLoopUtils::runLoop($this->loop, 2, $forced);
+        EventLoopUtils::runLoop($this->loop, 2, function ($iterationsMissing) use ($outputPrinter) {
+            (new CommandBusHeaderMessage('', 'EventLoop stopped. This consumer will run it '.$iterationsMissing.' more times.'))->print($outputPrinter);
+        }, $forced);
     }
 
     /**
