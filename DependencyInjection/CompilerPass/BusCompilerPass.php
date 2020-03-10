@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\DependencyInjection\CompilerPass;
 
+use Drift\AMQP\DependencyInjection\CompilerPass\AMQPCompilerPass;
 use Drift\CommandBus\Async\AMQPAdapter;
 use Drift\CommandBus\Async\AsyncAdapter;
 use Drift\CommandBus\Async\InMemoryAdapter;
@@ -32,6 +33,9 @@ use Drift\CommandBus\Exception\InvalidMiddlewareException;
 use Drift\CommandBus\Middleware\AsyncMiddleware;
 use Drift\CommandBus\Middleware\HandlerMiddleware;
 use Drift\CommandBus\Middleware\Middleware;
+use Drift\Postgresql\DependencyInjection\CompilerPass\PostgresqlCompilerPass;
+use Drift\Redis\DependencyInjection\CompilerPass\RedisCompilerPass;
+use Exception;
 use React\EventLoop\LoopInterface;
 use ReflectionClass;
 use ReflectionException;
@@ -105,7 +109,7 @@ class BusCompilerPass implements CompilerPassInterface
                 $this->createPostgreSQLAsyncAdapter($container, $adapter);
                 break;
             default:
-                return false;
+                throw new Exception('Wrong adapter');
         }
 
         $container->setDefinition(AsyncMiddleware::class,
@@ -474,11 +478,14 @@ class BusCompilerPass implements CompilerPassInterface
         ContainerBuilder $container,
         array $adapter
     ) {
+        $adapter['preload'] = true;
+        RedisCompilerPass::createClient($container, 'command_bus', $adapter);
+
         $container->setDefinition(
             AsyncAdapter::class,
             (
                 new Definition(RedisAdapter::class, [
-                    new Reference('redis.'.$adapter['client'].'_client'),
+                    new Reference('redis.command_bus_client'),
                     new Reference('reactphp.event_loop'),
                     $adapter['key'] ?? 'commands',
                 ])
@@ -496,13 +503,18 @@ class BusCompilerPass implements CompilerPassInterface
         ContainerBuilder $container,
         array $adapter
     ) {
+        $channel = $adapter['channel'] ?? 'commands';
+        unset($adapter['channel']);
+
+        PostgresqlCompilerPass::createclient($container, 'command_bus', $adapter);
+
         $container->setDefinition(
             AsyncAdapter::class,
             (
                 new Definition(PostgreSQLAdapter::class, [
-                    new Reference('postgresql.'.$adapter['client'].'_client'),
+                    new Reference('postgresql.command_bus_client'),
                     new Reference('reactphp.event_loop'),
-                    $adapter['channel'] ?? 'commands',
+                    $channel,
                 ])
             )->setLazy(true)
         );
@@ -518,11 +530,14 @@ class BusCompilerPass implements CompilerPassInterface
         ContainerBuilder $container,
         array $adapter
     ) {
+        $adapter['preload'] = true;
+        AMQPCompilerPass::registerClient($container, 'command_bus', $adapter);
+
         $container->setDefinition(
             AsyncAdapter::class,
             (
                 new Definition(AMQPAdapter::class, [
-                    new Reference('amqp.'.$adapter['client'].'_channel'),
+                    new Reference('amqp.command_bus_channel'),
                     new Reference('reactphp.event_loop'),
                     $adapter['queue'] ?? 'commands',
                 ])

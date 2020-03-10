@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Tests\Console;
 
-use Drift\AMQP\AMQPBundle;
 use Drift\CommandBus\Tests\BusFunctionalTest;
 
 /**
@@ -23,20 +22,6 @@ use Drift\CommandBus\Tests\BusFunctionalTest;
  */
 class CommandsListTest extends BusFunctionalTest
 {
-    /**
-     * Decorate bundles.
-     *
-     * @param array $bundles
-     *
-     * @return array
-     */
-    protected static function decorateBundles(array $bundles): array
-    {
-        $bundles[] = AMQPBundle::class;
-
-        return $bundles;
-    }
-
     /**
      * Decorate configuration.
      *
@@ -48,19 +33,11 @@ class CommandsListTest extends BusFunctionalTest
     {
         $configuration = parent::decorateConfiguration($configuration);
 
-        $configuration['amqp'] = [
-            'clients' => [
-                'amqp_1' => [
-                    'host' => '127.0.0.99',
-                ],
-            ],
-        ];
-
         $configuration['command_bus'] = [
             'command_bus' => [
                 'async_adapter' => [
                     'amqp' => [
-                        'client' => 'amqp_1',
+                        'host' => '127.0.0.99',
                         'queue' => 'commands',
                     ],
                 ],

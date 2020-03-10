@@ -15,49 +15,11 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Tests\Async;
 
-use Drift\Redis\RedisBundle;
-
 /**
  * Class RedisAsyncAdapterTest.
  */
 class RedisAsyncAdapterTest extends AsyncAdapterTest
 {
-    /**
-     * Decorate bundles.
-     *
-     * @param array $bundles
-     *
-     * @return array
-     */
-    protected static function decorateBundles(array $bundles): array
-    {
-        $bundles[] = RedisBundle::class;
-
-        return $bundles;
-    }
-
-    /**
-     * Decorate configuration.
-     *
-     * @param array $configuration
-     *
-     * @return array
-     */
-    protected static function decorateConfiguration(array $configuration): array
-    {
-        $configuration = parent::decorateConfiguration($configuration);
-
-        $configuration['redis'] = [
-            'clients' => [
-                'redis_1' => [
-                    'host' => '127.0.0.1',
-                ],
-            ],
-        ];
-
-        return $configuration;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -65,7 +27,7 @@ class RedisAsyncAdapterTest extends AsyncAdapterTest
     {
         return [
             'redis' => [
-                'client' => 'redis_1',
+                'host' => '127.0.0.1',
                 'key' => 'commands',
             ],
         ];
