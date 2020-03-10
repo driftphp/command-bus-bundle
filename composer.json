@@ -24,9 +24,9 @@
         "clue/block-react": "^1.3"
     },
     "require-dev": {
-        "drift/redis-bundle": "0.1.*, >=0.1.2",
-        "drift/amqp-bundle": "0.1.*, >=0.1.1",
-        "drift/postgresql-bundle": "0.1.*, >=0.1.1",
+        "drift/redis-bundle": "0.1.*, >=0.1.4",
+        "drift/amqp-bundle": "0.1.*, >=0.1.2",
+        "drift/postgresql-bundle": "0.1.*, >=0.1.2",
         "symfony/process": "^5.0.0"
     },
     "suggest": {

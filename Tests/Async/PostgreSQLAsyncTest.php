@@ -15,52 +15,11 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Tests\Async;
 
-use Drift\Postgresql\PostgresqlBundle;
-
 /**
  * Class PostgreSQLAsyncTest.
  */
 class PostgreSQLAsyncTest extends AsyncAdapterTest
 {
-    /**
-     * Decorate bundles.
-     *
-     * @param array $bundles
-     *
-     * @return array
-     */
-    protected static function decorateBundles(array $bundles): array
-    {
-        $bundles[] = PostgresqlBundle::class;
-
-        return $bundles;
-    }
-
-    /**
-     * Decorate configuration.
-     *
-     * @param array $configuration
-     *
-     * @return array
-     */
-    protected static function decorateConfiguration(array $configuration): array
-    {
-        $configuration = parent::decorateConfiguration($configuration);
-
-        $configuration['postgresql'] = [
-            'clients' => [
-                'postgresql_1' => [
-                    'host' => '127.0.0.1',
-                    'database' => 'commands',
-                    'user' => 'root',
-                    'password' => 'root',
-                ],
-            ],
-        ];
-
-        return $configuration;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -68,7 +27,10 @@ class PostgreSQLAsyncTest extends AsyncAdapterTest
     {
         return [
             'postgresql' => [
-                'client' => 'postgresql_1',
+                'host' => '127.0.0.1',
+                'database' => 'commands',
+                'user' => 'root',
+                'password' => 'root',
                 'channel' => 'commands',
             ],
         ];
