@@ -15,12 +15,12 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Tests\Bus;
 
+use function Clue\React\Block\await;
 use Drift\CommandBus\Exception\MissingHandlerException;
 use Drift\CommandBus\Tests\BusFunctionalTest;
 use Drift\CommandBus\Tests\Command\ChangeAThing;
 use Drift\CommandBus\Tests\Context;
 use Drift\CommandBus\Tests\QueryHandler\GetAThingHandler;
-use function Clue\React\Block\await;
 
 /**
  * Class QueryHandlerNotExistsTest.

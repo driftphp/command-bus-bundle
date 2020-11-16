@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Tests\Bus;
 
+use function Clue\React\Block\await;
 use Drift\CommandBus\Middleware\HandlerMiddleware;
 use Drift\CommandBus\Tests\BusFunctionalTest;
 use Drift\CommandBus\Tests\Command\ChangeAThing;
@@ -26,7 +27,6 @@ use Drift\CommandBus\Tests\Query\GetAnotherThing;
 use Drift\CommandBus\Tests\Query\GetAThing;
 use Drift\CommandBus\Tests\QueryHandler\GetAnotherThingHandler;
 use Drift\CommandBus\Tests\QueryHandler\GetAThingHandler;
-use function Clue\React\Block\await;
 
 /**
  * Class QueryHandlerWithMiddleware.

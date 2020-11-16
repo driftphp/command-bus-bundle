@@ -27,7 +27,8 @@
         "drift/redis-bundle": "0.1.*, >=0.1.4",
         "drift/amqp-bundle": "0.1.*, >=0.1.2",
         "drift/postgresql-bundle": "0.1.*, >=0.1.2",
-        "symfony/process": "^5.0.0"
+        "symfony/process": "^5.0.0",
+        "phpunit/phpunit": "7.5.17"
     },
     "suggest": {
         "drift/redis-bundle": "Install this bundle to use Redis as a queue system",

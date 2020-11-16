@@ -15,13 +15,13 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Tests\Bus;
 
+use function Clue\React\Block\await;
 use Drift\CommandBus\Bus\Bus;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\CommandBus\Tests\BusFunctionalTest;
 use Drift\CommandBus\Tests\Context;
 use Drift\CommandBus\Tests\Query\GetAThing;
 use Drift\CommandBus\Tests\QueryHandler\GetAThingHandler;
-use function Clue\React\Block\await;
 
 /**
  * Class QueryHandlerTest.

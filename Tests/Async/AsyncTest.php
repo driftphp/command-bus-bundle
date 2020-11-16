@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Tests\Async;
 
+use function Clue\React\Block\await;
 use Drift\CommandBus\Middleware\AsyncMiddleware;
 use Drift\CommandBus\Tests\BusFunctionalTest;
 use Drift\CommandBus\Tests\Command\ChangeAThing;
@@ -22,7 +23,6 @@ use Drift\CommandBus\Tests\CommandHandler\ChangeAThingHandler;
 use Drift\CommandBus\Tests\Context;
 use Drift\CommandBus\Tests\Middleware\Middleware1;
 use Drift\CommandBus\Tests\Middleware\Middleware3;
-use function Clue\React\Block\await;
 
 /**
  * Class AsyncTest.

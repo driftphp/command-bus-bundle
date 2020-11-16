@@ -15,14 +15,14 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Async;
 
+use function Clue\React\Block\await;
 use Drift\CommandBus\Bus\CommandBus;
 use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
-use function Clue\React\Block\await;
 use React\EventLoop\LoopInterface;
-use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
+use function React\Promise\resolve;
 
 /**
  * Class DummyAdapter.
@@ -61,7 +61,7 @@ class InMemoryAdapter extends AsyncAdapter
         $this->queue = [];
         (new CommandBusLineMessage('Local queue created properly'))->print($outputPrinter);
 
-        return new FulfilledPromise();
+        return resolve();
     }
 
     /**
@@ -76,7 +76,7 @@ class InMemoryAdapter extends AsyncAdapter
         $this->queue = null;
         (new CommandBusLineMessage('Local queue dropped properly'))->print($outputPrinter);
 
-        return new FulfilledPromise();
+        return resolve();
     }
 
     /**
@@ -92,7 +92,7 @@ class InMemoryAdapter extends AsyncAdapter
             ? (new CommandBusLineMessage('Local queue exists'))->print($outputPrinter)
             : (new CommandBusLineMessage('Local queue does not exist'))->print($outputPrinter);
 
-        return new FulfilledPromise();
+        return resolve();
     }
 
     /**
@@ -120,7 +120,7 @@ class InMemoryAdapter extends AsyncAdapter
     {
         $this->queue[] = $command;
 
-        return new FulfilledPromise();
+        return resolve();
     }
 
     /**

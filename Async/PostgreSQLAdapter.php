@@ -15,13 +15,13 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Async;
 
+use function Clue\React\Block\await;
 use Drift\CommandBus\Bus\CommandBus;
 use Drift\CommandBus\Console\CommandBusHeaderMessage;
 use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
 use Drift\EventLoop\EventLoopUtils;
-use function Clue\React\Block\await;
 use PgAsync\Client;
 use PgAsync\Message\NotificationResponse;
 use React\EventLoop\LoopInterface;

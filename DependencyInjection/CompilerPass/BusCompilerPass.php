@@ -110,7 +110,7 @@ class BusCompilerPass implements CompilerPassInterface
                 $this->createPostgreSQLAsyncAdapter($container, $adapter);
                 break;
             default:
-                throw new Exception('Wrong adapter');
+                throw new Exception('Wrong adapter. Please use one of this list: amqp, in_memory, redis, postgresql.');
         }
 
         $container->setDefinition(AsyncMiddleware::class,
