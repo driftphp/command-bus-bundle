@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Tests\Async;
 
+use function Clue\React\Block\await;
+use function Clue\React\Block\awaitAll;
 use Drift\CommandBus\Tests\BusFunctionalTest;
 use Drift\CommandBus\Tests\Command\ChangeAnotherThing;
 use Drift\CommandBus\Tests\Command\ChangeAThing;
@@ -25,8 +27,6 @@ use Drift\CommandBus\Tests\CommandHandler\ChangeAThingHandler;
 use Drift\CommandBus\Tests\CommandHandler\ChangeYetAnotherThingHandler;
 use Drift\CommandBus\Tests\Context;
 use Drift\CommandBus\Tests\Middleware\Middleware1;
-use function Clue\React\Block\await;
-use function Clue\React\Block\awaitAll;
 
 /**
  * Class AsyncAdapterTest.

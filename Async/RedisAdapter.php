@@ -15,15 +15,15 @@ declare(strict_types=1);
 
 namespace Drift\CommandBus\Async;
 
+use function Clue\React\Block\await;
 use Clue\React\Redis\Client;
 use Drift\CommandBus\Bus\CommandBus;
 use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
-use function Clue\React\Block\await;
 use React\EventLoop\LoopInterface;
-use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
+use function React\Promise\resolve;
 
 /**
  * Class RedisAdapter.
@@ -83,7 +83,7 @@ class RedisAdapter extends AsyncAdapter
     {
         (new CommandBusLineMessage('List created properly. No need to be created previously'))->print($outputPrinter);
 
-        return new FulfilledPromise();
+        return resolve();
     }
 
     /**
@@ -114,7 +114,7 @@ class RedisAdapter extends AsyncAdapter
             $this->key
         )))->print($outputPrinter);
 
-        return new FulfilledPromise();
+        return resolve();
     }
 
     /**

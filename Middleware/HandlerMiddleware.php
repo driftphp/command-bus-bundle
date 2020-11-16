@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace Drift\CommandBus\Middleware;
 
 use Drift\CommandBus\Exception\MissingHandlerException;
-use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
-use React\Promise\RejectedPromise;
+use function React\Promise\reject;
+use function React\Promise\resolve;
 
 /**
  * Class HandlerMiddleware.
@@ -60,7 +60,7 @@ class HandlerMiddleware implements DebugableMiddleware
         $commandOrQueryNamespace = get_class($command);
 
         if (!array_key_exists($commandOrQueryNamespace, $this->handlersMap)) {
-            return new RejectedPromise(new MissingHandlerException());
+            return reject(new MissingHandlerException());
         }
 
         list($handler, $method) = $this->handlersMap[$commandOrQueryNamespace];
@@ -68,7 +68,7 @@ class HandlerMiddleware implements DebugableMiddleware
 
         return ($result instanceof PromiseInterface)
             ? $result
-            : new FulfilledPromise($result);
+            : resolve($result);
     }
 
     /**

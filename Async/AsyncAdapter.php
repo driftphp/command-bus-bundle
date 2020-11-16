@@ -21,8 +21,8 @@ use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\CommandBus\Exception\MissingHandlerException;
 use Drift\Console\OutputPrinter;
 use Drift\Console\TimeFormatter;
-use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
+use function React\Promise\resolve;
 
 /**
  * Interface AsyncAdapter.
@@ -136,13 +136,13 @@ abstract class AsyncAdapter
                     CommandConsumedLineMessage::CONSUMED
                 ))->print($outputPrinter);
 
-                return (new FulfilledPromise())
+                return resolve()
                     ->then(function () use ($ok) {
                         return $ok();
                     })
                     ->then(function () use ($finish) {
                         if (!$this->canConsumeAnotherOne()) {
-                            return (new FulfilledPromise())
+                            return (resolve())
                                 ->then(function () use ($finish) {
                                     return $finish();
                                 });
@@ -164,11 +164,11 @@ abstract class AsyncAdapter
 
                 return (
                     $ignorable
-                        ? (new FulfilledPromise())
+                        ? (resolve())
                             ->then(function () use ($ok) {
                                 return $ok();
                             })
-                        : (new FulfilledPromise())
+                        : (resolve())
                             ->then(function () use ($ko) {
                                 return $ko();
                             })
