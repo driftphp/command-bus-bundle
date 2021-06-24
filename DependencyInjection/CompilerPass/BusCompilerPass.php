@@ -341,7 +341,7 @@ class BusCompilerPass implements CompilerPassInterface
             }
 
             $reflectionParameter = $reflectionMethod->getParameters()[0];
-            $handlersMap[$reflectionParameter->getClass()->getName()] = [new Reference($serviceId), $reflectionMethod->getName()];
+            $handlersMap[$reflectionParameter->getType()->getName()] = [new Reference($serviceId), $reflectionMethod->getName()];
         }
 
         return $handlersMap;

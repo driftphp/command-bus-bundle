@@ -50,7 +50,7 @@ class DebugCommandBusCommand extends Command
      * BusDebugger constructor.
      *
      * @param CommandBus       $commandBus
-     * @param InlineCommandBus $commandBus
+     * @param InlineCommandBus $inlineCommandBus
      * @param QueryBus         $queryBus
      */
     public function __construct(

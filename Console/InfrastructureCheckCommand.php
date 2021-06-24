@@ -74,7 +74,7 @@ class InfrastructureCheckCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $outputPrinter = new OutputPrinter($output);
+        $outputPrinter = new OutputPrinter($output, false, false);
         $adapterName = $this->asyncAdapter->getName();
         (new CommandBusHeaderMessage('', 'Started checking infrastructure...'))->print($outputPrinter);
         (new CommandBusHeaderMessage('', 'Using adapter '.$adapterName))->print($outputPrinter);

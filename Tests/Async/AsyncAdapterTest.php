@@ -91,16 +91,16 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
     public function testInfrastructure()
     {
         $output = $this->dropInfrastructure();
-        $this->assertContains('dropped', $output);
+        $this->assertStringContainsString('dropped', $output);
 
         $output = $this->createInfrastructure();
-        $this->assertContains('created properly', $output);
+        $this->assertStringContainsString('created properly', $output);
 
         $output = $this->checkInfrastructure();
-        $this->assertContains('exists', $output);
+        $this->assertStringContainsString('exists', $output);
 
         $output = $this->dropInfrastructure();
-        $this->assertContains('dropped', $output);
+        $this->assertStringContainsString('dropped', $output);
     }
 
     /**
@@ -134,8 +134,8 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         $this->assertFalse(file_exists('/tmp/a.thing'));
         $output = $this->consumeCommands(1);
 
-        $this->assertContains("\033[01;32mConsumed\033[0m ChangeAThing", $output);
-        $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
+        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAThing", $output);
+        $this->assertStringNotContainsString("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
         if ($this instanceof InMemoryAsyncTest) {
             $this->assertTrue($this->getContextValue('middleware1'));
         }
@@ -143,9 +143,9 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         $this->assertTrue(file_exists('/tmp/a.thing'));
         $output2 = $this->consumeCommands(1);
 
-        $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAThing", $output2);
-        $this->assertContains("\033[01;36mIgnored \033[0m ChangeBThing", $output2);
-        $this->assertContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output2);
+        $this->assertStringNotContainsString("\033[01;32mConsumed\033[0m ChangeAThing", $output2);
+        $this->assertStringContainsString("\033[01;36mIgnored \033[0m ChangeBThing", $output2);
+        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output2);
     }
 
     /**
@@ -171,14 +171,14 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
 
         $output = $this->consumeCommands(2);
 
-        $this->assertContains("\033[01;32mConsumed\033[0m ChangeAThing", $output);
-        $this->assertContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
-        $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
+        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAThing", $output);
+        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
+        $this->assertStringNotContainsString("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
         $output = $this->consumeCommands(1);
 
-        $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAThing", $output);
-        $this->assertNotContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
-        $this->assertContains("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
+        $this->assertStringNotContainsString("\033[01;32mConsumed\033[0m ChangeAThing", $output);
+        $this->assertStringNotContainsString("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
+        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
     }
 
     /**
@@ -213,9 +213,9 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         awaitAll($promises, $this->getLoop());
         usleep(200000);
         $output = $process->getOutput();
-        $this->assertContains("\033[01;32mConsumed\033[0m ChangeAThing", $output);
-        $this->assertContains("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
-        $this->assertContains("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
+        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAThing", $output);
+        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
+        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
         $process->stop();
     }
 

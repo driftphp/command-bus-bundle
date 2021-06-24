@@ -48,7 +48,7 @@ class InvalidMiddlewareExceptionTest extends BusFunctionalTest
      * Sets up the fixture, for example, open a network connection.
      * This method is called before a test is executed.
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         try {
             parent::setUpBeforeClass();

@@ -40,11 +40,6 @@ class CommandConsumerCommand extends Command
     private $commandBus;
 
     /**
-     * @var LoopInterface
-     */
-    private $loop;
-
-    /**
      * ConsumeCommand constructor.
      *
      * @param AsyncAdapter     $asyncAdapter
@@ -53,14 +48,12 @@ class CommandConsumerCommand extends Command
      */
     public function __construct(
         AsyncAdapter $asyncAdapter,
-        InlineCommandBus $commandBus,
-        LoopInterface $loop
+        InlineCommandBus $commandBus
     ) {
         parent::__construct();
 
         $this->asyncAdapter = $asyncAdapter;
         $this->commandBus = $commandBus;
-        $this->loop = $loop;
     }
 
     /**
@@ -90,7 +83,7 @@ class CommandConsumerCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $outputPrinter = new OutputPrinter($output);
+        $outputPrinter = new OutputPrinter($output, false, false);
         $adapterName = $this->asyncAdapter->getName();
         (new CommandBusHeaderMessage('', 'Consumer built'))->print($outputPrinter);
         (new CommandBusHeaderMessage('', 'Using adapter '.$adapterName))->print($outputPrinter);
