@@ -56,7 +56,7 @@ class CommandsListTest extends BusFunctionalTest
             '',
         ]);
 
-        $this->assertContains('debug:command-bus', $output);
-        $this->assertContains('bus:consume-commands', $output);
+        $this->assertStringContainsString('debug:command-bus', $output);
+        $this->assertStringContainsString('bus:consume-commands', $output);
     }
 }
