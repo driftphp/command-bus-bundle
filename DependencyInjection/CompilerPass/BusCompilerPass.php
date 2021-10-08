@@ -21,6 +21,7 @@ use Drift\CommandBus\Async\AsyncAdapter;
 use Drift\CommandBus\Async\InMemoryAdapter;
 use Drift\CommandBus\Async\PostgreSQLAdapter;
 use Drift\CommandBus\Async\RedisAdapter;
+use Drift\CommandBus\Bus\AsyncCommandBus;
 use Drift\CommandBus\Bus\CommandBus;
 use Drift\CommandBus\Bus\InlineCommandBus;
 use Drift\CommandBus\Bus\QueryBus;
@@ -49,65 +50,106 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 class BusCompilerPass implements CompilerPassInterface
 {
+    const BUS_TYPE_COMMAND = 'command';
+    const BUS_TYPE_QUERY = 'query';
+
     /**
      * {@inheritdoc}
      */
     public function process(ContainerBuilder $container)
     {
-        $asyncBus = $this->createAsyncMiddleware($container);
+        $asyncEnabled = static::createAsyncMiddleware($container);
+        static:: createBuses(
+            $container,
+            $asyncEnabled,
+            $container->getParameter('bus.query_bus.distribution'),
+            $container->getParameter('bus.query_bus.middlewares'),
+            $container->getParameter('bus.command_bus.distribution'),
+            $container->getParameter('bus.command_bus.middlewares')
+        );
 
-        $this->createQueryHandlerMiddleware($container);
-        $this->createCommandHandlerMiddleware($container);
-        $this->createQueryBus($container);
-        $this->createCommandBus($container, $asyncBus);
-        $this->createInlineCommandBus($container);
-        $this->createBusDebugger($container);
-
-        if ($asyncBus) {
-            $this->createCommandConsumer($container);
-            $this->createInfrastructureCreateCommand($container);
-            $this->createInfrastructureDropCommand($container);
-            $this->createInfrastructureCheckCommand($container);
+        if ($asyncEnabled) {
+            static::createAsyncBuses($container);
         }
     }
 
     /**
-     * Check for async middleware needs and return if has been created.
-     *
      * @param ContainerBuilder $container
+     * @param bool             $asyncBus
+     * @param string           $queryBusDistribution
+     * @param array            $queryMiddlewares
+     * @param string           $commandBusDistribution
+     * @param array            $commandMiddlewares
+     */
+    public static function createBuses(
+        ContainerBuilder $container,
+        bool $asyncBus,
+        string $queryBusDistribution,
+        array $queryMiddlewares,
+        string $commandBusDistribution,
+        array $commandMiddlewares
+    ) {
+        static::createQueryHandlerMiddleware($container);
+        static::createCommandHandlerMiddleware($container);
+        static::createQueryBus($container, $queryBusDistribution, $queryMiddlewares);
+        static::createCommandBus($container, $commandBusDistribution, $commandMiddlewares, $asyncBus);
+        static::createInlineCommandBus($container, $commandBusDistribution, $commandMiddlewares);
+        static::createBusDebugger($container);
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     */
+    public static function createAsyncBuses(ContainerBuilder $container)
+    {
+        static::createCommandConsumer($container);
+        static::createInfrastructureCreateCommand($container);
+        static::createInfrastructureDropCommand($container);
+        static::createInfrastructureCheckCommand($container);
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @param array|null       $adapter
      *
      * @return bool
      */
-    public function createAsyncMiddleware(ContainerBuilder $container): bool
-    {
-        $asyncAdapters = $container->getParameter('bus.command_bus.async_adapter');
+    public static function createAsyncMiddleware(
+        ContainerBuilder $container,
+        array $adapter = null
+    ): bool {
+        if (is_array($adapter)) {
+            $adapterType = $adapter['type'];
+        } else {
+            $asyncAdapters = $container->getParameter('bus.command_bus.async_adapter');
 
-        if (
-            empty($asyncAdapters) ||
-            (
-                isset($asyncAdapters['adapter']) &&
-                !isset($asyncAdapters[$asyncAdapters['adapter']])
-            )
-        ) {
-            return false;
+            if (
+                empty($asyncAdapters) ||
+                (
+                    isset($asyncAdapters['adapter']) &&
+                    !isset($asyncAdapters[$asyncAdapters['adapter']])
+                )
+            ) {
+                return false;
+            }
+
+            $adapterType = $asyncAdapters['adapter'] ?? array_key_first($asyncAdapters);
+            $adapterType = $container->resolveEnvPlaceholders($adapterType, true);
+            $adapter = $asyncAdapters[$adapterType];
         }
-
-        $adapterType = $asyncAdapters['adapter'] ?? array_key_first($asyncAdapters);
-        $adapterType = $container->resolveEnvPlaceholders($adapterType, true);
-        $adapter = $asyncAdapters[$adapterType];
 
         switch ($adapterType) {
             case 'amqp':
-                $this->createAMQPAsyncAdapter($container, $adapter);
+                static::createAMQPAsyncAdapter($container, $adapter);
                 break;
             case 'in_memory':
-                $this->createInMemoryAsyncAdapter($container);
+                static::createInMemoryAsyncAdapter($container);
                 break;
             case 'redis':
-                $this->createRedisAsyncAdapter($container, $adapter);
+                static::createRedisAsyncAdapter($container, $adapter);
                 break;
             case 'postgresql':
-                $this->createPostgreSQLAsyncAdapter($container, $adapter);
+                static::createPostgreSQLAsyncAdapter($container, $adapter);
                 break;
             default:
                 throw new Exception('Wrong adapter. Please use one of this list: amqp, in_memory, redis, postgresql.');
@@ -132,11 +174,11 @@ class BusCompilerPass implements CompilerPassInterface
      * @throws InvalidMiddlewareException
      * @throws ReflectionException
      */
-    private function createQueryHandlerMiddleware(ContainerBuilder $container)
+    private static function createQueryHandlerMiddleware(ContainerBuilder $container)
     {
         $handlerMiddlewareId = 'bus.query_bus.handler_middleware';
         $handlerMiddleware = new Definition(HandlerMiddleware::class);
-        $handlerMap = $this->createHandlersMap($container, 'query_handler');
+        $handlerMap = static::createHandlersMap($container, 'query_handler');
 
         foreach ($handlerMap as $command => list($reference, $method)) {
             $handlerMiddleware->addMethodCall('addHandler', [
@@ -155,11 +197,11 @@ class BusCompilerPass implements CompilerPassInterface
      * @throws InvalidMiddlewareException
      * @throws ReflectionException
      */
-    private function createCommandHandlerMiddleware(ContainerBuilder $container)
+    private static function createCommandHandlerMiddleware(ContainerBuilder $container)
     {
         $handlerMiddlewareId = 'bus.command_bus.handler_middleware';
         $handlerMiddleware = new Definition(HandlerMiddleware::class);
-        $handlerMap = $this->createHandlersMap($container, 'command_handler');
+        $handlerMap = static::createHandlersMap($container, 'command_handler');
 
         foreach ($handlerMap as $command => list($reference, $method)) {
             $handlerMiddleware->addMethodCall('addHandler', [
@@ -174,18 +216,24 @@ class BusCompilerPass implements CompilerPassInterface
      * Create query bus.
      *
      * @param ContainerBuilder $container
+     * @param string           $queryBusDistribution
+     * @param array            $queryMiddlewares
      */
-    private function createQueryBus(ContainerBuilder $container)
-    {
+    private static function createQueryBus(
+        ContainerBuilder $container,
+        string $queryBusDistribution,
+        array $queryMiddlewares
+    ) {
         $container->setDefinition('drift.query_bus', (new Definition(
             QueryBus::class, [
                 new Reference(LoopInterface::class),
-                $this->createMiddlewaresArray(
+                static::createMiddlewaresArray(
                     $container,
-                    'query',
-                    false
+                    $queryMiddlewares,
+                    false,
+                    self::BUS_TYPE_QUERY
                 ),
-                $container->getParameter('bus.query_bus.distribution'),
+                $queryBusDistribution,
             ]
         ))
             ->addTag('preload')
@@ -199,21 +247,27 @@ class BusCompilerPass implements CompilerPassInterface
      * Create command bus.
      *
      * @param ContainerBuilder $container
+     * @param string           $commandBusDistribution
+     * @param array            $commandMiddlewares
      * @param bool             $asyncBus
      */
-    private function createCommandBus(
+    private static function createCommandBus(
         ContainerBuilder $container,
+        string $commandBusDistribution,
+        array $commandMiddlewares,
         bool $asyncBus
     ) {
+        $class = $asyncBus ? AsyncCommandBus::class : CommandBus::class;
         $container->setDefinition('drift.command_bus', (new Definition(
-            CommandBus::class, [
+            $class, [
                 new Reference(LoopInterface::class),
-                $this->createMiddlewaresArray(
+                static::createMiddlewaresArray(
                     $container,
-                    'command',
-                    $asyncBus
+                    $commandMiddlewares,
+                    $asyncBus,
+                    self::BUS_TYPE_COMMAND
                 ),
-                $container->getParameter('bus.command_bus.distribution'),
+                $commandBusDistribution,
             ]
         ))
             ->addTag('preload')
@@ -221,24 +275,34 @@ class BusCompilerPass implements CompilerPassInterface
         );
 
         $container->setAlias(CommandBus::class, 'drift.command_bus');
+
+        if ($asyncBus) {
+            $container->setAlias(AsyncCommandBus::class, 'drift.command_bus');
+        }
     }
 
     /**
      * Create command bus.
      *
      * @param ContainerBuilder $container
+     * @param string           $commandBusDistribution
+     * @param array            $commandMiddlewares
      */
-    private function createInlineCommandBus(ContainerBuilder $container)
-    {
+    private static function createInlineCommandBus(
+        ContainerBuilder $container,
+        string $commandBusDistribution,
+        array $commandMiddlewares
+    ) {
         $container->setDefinition('drift.inline_command_bus', (new Definition(
             InlineCommandBus::class, [
                 new Reference(LoopInterface::class),
-                $this->createMiddlewaresArray(
+                static::createMiddlewaresArray(
                     $container,
-                    'command',
-                    false
+                    $commandMiddlewares,
+                    false,
+                    self::BUS_TYPE_COMMAND
                 ),
-                $container->getParameter('bus.command_bus.distribution'),
+                $commandBusDistribution,
             ]
         ))
             ->addTag('preload')
@@ -249,20 +313,19 @@ class BusCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * Create array of middlewares by configuration.
-     *
      * @param ContainerBuilder $container
-     * @param string           $type
+     * @param array            $definedMiddlewares
      * @param bool             $isAsync
+     * @param string           $type
      *
      * @return array
      */
-    private function createMiddlewaresArray(
+    private static function createMiddlewaresArray(
         ContainerBuilder $container,
-        string $type,
-        bool $isAsync = false
+        array $definedMiddlewares,
+        bool $isAsync,
+        string $type
     ) {
-        $definedMiddlewares = $container->getParameter("bus.{$type}_bus.middlewares");
         $asyncFound = array_search('@async', $definedMiddlewares);
         $middlewares = [];
 
@@ -276,7 +339,7 @@ class BusCompilerPass implements CompilerPassInterface
             if ('@async' === $middleware) {
                 if (
                     true === $isAsync &&
-                    'command' === $type
+                    self::BUS_TYPE_COMMAND === $type
                 ) {
                     $middlewares[] = new Reference(AsyncMiddleware::class);
 
@@ -324,7 +387,7 @@ class BusCompilerPass implements CompilerPassInterface
      * @throws InvalidMiddlewareException
      * @throws ReflectionException
      */
-    private function createHandlersMap(
+    private static function createHandlersMap(
         ContainerBuilder $container,
         string $tag
     ): array {
@@ -356,7 +419,7 @@ class BusCompilerPass implements CompilerPassInterface
      *
      * @param ContainerBuilder $container
      */
-    private function createCommandConsumer(ContainerBuilder $container)
+    private static function createCommandConsumer(ContainerBuilder $container)
     {
         $consumer = new Definition(CommandConsumerCommand::class, [
             new Reference(AsyncAdapter::class),
@@ -376,7 +439,7 @@ class BusCompilerPass implements CompilerPassInterface
      *
      * @param ContainerBuilder $container
      */
-    private function createBusDebugger(ContainerBuilder $container)
+    private static function createBusDebugger(ContainerBuilder $container)
     {
         $consumer = new Definition(DebugCommandBusCommand::class, [
             new Reference('drift.command_bus'),
@@ -396,7 +459,7 @@ class BusCompilerPass implements CompilerPassInterface
      *
      * @param ContainerBuilder $container
      */
-    private function createInfrastructureCreateCommand(ContainerBuilder $container)
+    private static function createInfrastructureCreateCommand(ContainerBuilder $container)
     {
         $consumer = new Definition(InfrastructureCreateCommand::class, [
             new Reference(AsyncAdapter::class),
@@ -415,7 +478,7 @@ class BusCompilerPass implements CompilerPassInterface
      *
      * @param ContainerBuilder $container
      */
-    private function createInfrastructureDropCommand(ContainerBuilder $container)
+    private static function createInfrastructureDropCommand(ContainerBuilder $container)
     {
         $consumer = new Definition(InfrastructureDropCommand::class, [
             new Reference(AsyncAdapter::class),
@@ -434,7 +497,7 @@ class BusCompilerPass implements CompilerPassInterface
      *
      * @param ContainerBuilder $container
      */
-    private function createInfrastructureCheckCommand(ContainerBuilder $container)
+    private static function createInfrastructureCheckCommand(ContainerBuilder $container)
     {
         $consumer = new Definition(InfrastructureCheckCommand::class, [
             new Reference(AsyncAdapter::class),
@@ -457,7 +520,7 @@ class BusCompilerPass implements CompilerPassInterface
      *
      * @param ContainerBuilder $container
      */
-    private function createInMemoryAsyncAdapter(ContainerBuilder $container)
+    private static function createInMemoryAsyncAdapter(ContainerBuilder $container)
     {
         $container->setDefinition(
             AsyncAdapter::class,
@@ -475,7 +538,7 @@ class BusCompilerPass implements CompilerPassInterface
      * @param ContainerBuilder $container
      * @param array            $adapter
      */
-    private function createRedisAsyncAdapter(
+    private static function createRedisAsyncAdapter(
         ContainerBuilder $container,
         array $adapter
     ) {
@@ -500,7 +563,7 @@ class BusCompilerPass implements CompilerPassInterface
      * @param ContainerBuilder $container
      * @param array            $adapter
      */
-    private function createPostgreSQLAsyncAdapter(
+    private static function createPostgreSQLAsyncAdapter(
         ContainerBuilder $container,
         array $adapter
     ) {
@@ -527,7 +590,7 @@ class BusCompilerPass implements CompilerPassInterface
      * @param ContainerBuilder $container
      * @param array            $adapter
      */
-    private function createAMQPAsyncAdapter(
+    private static function createAMQPAsyncAdapter(
         ContainerBuilder $container,
         array $adapter
     ) {
