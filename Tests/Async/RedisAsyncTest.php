@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace Drift\CommandBus\Tests\Async;
 
 /**
- * Class RedisAsyncAdapterTest.
+ * Class RedisAsyncTest.
  */
-class RedisAsyncAdapterTest extends AsyncAdapterTest
+class RedisAsyncTest extends AsyncAdapterTest
 {
     /**
      * {@inheritdoc}
