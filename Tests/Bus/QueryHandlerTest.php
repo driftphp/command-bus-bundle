@@ -22,6 +22,7 @@ use Drift\CommandBus\Tests\BusFunctionalTest;
 use Drift\CommandBus\Tests\Context;
 use Drift\CommandBus\Tests\Query\GetAThing;
 use Drift\CommandBus\Tests\QueryHandler\GetAThingHandler;
+use Drift\CommandBus\Tests\Service;
 
 /**
  * Class QueryHandlerTest.
@@ -37,6 +38,7 @@ class QueryHandlerTest extends BusFunctionalTest
      */
     protected static function decorateConfiguration(array $configuration): array
     {
+        $configuration['services'][Service::class] = [];
         $configuration['services'][Context::class] = [];
         $configuration['services'][GetAThingHandler::class] = [
             'tags' => [
@@ -88,5 +90,14 @@ class QueryHandlerTest extends BusFunctionalTest
             ->ask('something');
 
         await($promise, $this->getLoop());
+    }
+
+    /**
+     * Buses injection.
+     */
+    public function testBusesInjection()
+    {
+        $this->expectNotToPerformAssertions();
+        $this->get(Service::class);
     }
 }

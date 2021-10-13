@@ -31,7 +31,7 @@ use Drift\CommandBus\Tests\QueryHandler\GetAThingHandler;
 /**
  * Class QueryHandlerWithMiddleware.
  */
-class QueryHandlerWithMiddleware extends BusFunctionalTest
+class QueryHandlerWithMiddlewareTest extends BusFunctionalTest
 {
     /**
      * Decorate configuration.

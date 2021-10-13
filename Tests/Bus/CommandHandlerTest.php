@@ -22,6 +22,7 @@ use Drift\CommandBus\Tests\BusFunctionalTest;
 use Drift\CommandBus\Tests\Command\ChangeAThing;
 use Drift\CommandBus\Tests\CommandHandler\ChangeAThingHandler;
 use Drift\CommandBus\Tests\Context;
+use Drift\CommandBus\Tests\Service;
 
 /**
  * Class CommandHandlerTest.
@@ -37,6 +38,7 @@ class CommandHandlerTest extends BusFunctionalTest
      */
     protected static function decorateConfiguration(array $configuration): array
     {
+        $configuration['services'][Service::class] = [];
         $configuration['services'][Context::class] = [];
         $configuration['services'][ChangeAThingHandler::class] = [
             'tags' => [
@@ -90,5 +92,14 @@ class CommandHandlerTest extends BusFunctionalTest
             ->getCommandBus()
             ->getMiddlewareList()
         );
+    }
+
+    /**
+     * Buses injection.
+     */
+    public function testBusesInjection()
+    {
+        $this->expectNotToPerformAssertions();
+        $this->get(Service::class);
     }
 }
