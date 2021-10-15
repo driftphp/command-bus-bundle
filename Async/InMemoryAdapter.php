@@ -17,6 +17,7 @@ namespace Drift\CommandBus\Async;
 
 use function Clue\React\Block\await;
 use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Bus\NonRecoverableCommand;
 use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
@@ -140,13 +141,20 @@ class InMemoryAdapter extends AsyncAdapter
         $this->resetIterations($limit);
 
         foreach ($this->queue as $key => $command) {
+            $notShouldRecover = !$command instanceof NonRecoverableCommand;
+            if ($notShouldRecover) {
+                unset($this->queue[$key]);
+            }
+
             $promise = $this
                 ->executeCommand(
                     $bus,
                     $command,
                     $outputPrinter,
-                    function () use ($key) {
-                        unset($this->queue[$key]);
+                    function () use ($key, $notShouldRecover) {
+                        if (!$notShouldRecover) {
+                            unset($this->queue[$key]);
+                        }
                     },
                     function () {},
                     function () {

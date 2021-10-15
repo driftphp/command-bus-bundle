@@ -29,15 +29,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class CommandConsumerCommand extends Command
 {
-    /**
-     * @var AsyncAdapter
-     */
-    private $asyncAdapter;
-
-    /**
-     * @var InlineCommandBus
-     */
-    private $commandBus;
+    private AsyncAdapter $asyncAdapter;
+    private InlineCommandBus $commandBus;
 
     /**
      * ConsumeCommand constructor.

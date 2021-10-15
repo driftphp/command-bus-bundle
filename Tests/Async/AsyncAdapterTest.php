@@ -22,9 +22,15 @@ use Drift\CommandBus\Tests\Command\ChangeAnotherThing;
 use Drift\CommandBus\Tests\Command\ChangeAThing;
 use Drift\CommandBus\Tests\Command\ChangeBThing;
 use Drift\CommandBus\Tests\Command\ChangeYetAnotherThing;
+use Drift\CommandBus\Tests\Command\NotRecoverableCommand;
+use Drift\CommandBus\Tests\Command\RejectException;
+use Drift\CommandBus\Tests\Command\ThrowException;
 use Drift\CommandBus\Tests\CommandHandler\ChangeAnotherThingHandler;
 use Drift\CommandBus\Tests\CommandHandler\ChangeAThingHandler;
 use Drift\CommandBus\Tests\CommandHandler\ChangeYetAnotherThingHandler;
+use Drift\CommandBus\Tests\CommandHandler\NotRecoverableCommandHandler;
+use Drift\CommandBus\Tests\CommandHandler\RejectExceptionHandler;
+use Drift\CommandBus\Tests\CommandHandler\ThrowExceptionHandler;
 use Drift\CommandBus\Tests\Context;
 use Drift\CommandBus\Tests\Middleware\Middleware1;
 
@@ -57,6 +63,24 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         ];
 
         $configuration['services'][ChangeYetAnotherThingHandler::class] = [
+            'tags' => [
+                ['name' => 'command_handler', 'method' => 'handle'],
+            ],
+        ];
+
+        $configuration['services'][ThrowExceptionHandler::class] = [
+            'tags' => [
+                ['name' => 'command_handler', 'method' => 'handle'],
+            ],
+        ];
+
+        $configuration['services'][RejectExceptionHandler::class] = [
+            'tags' => [
+                ['name' => 'command_handler', 'method' => 'handle'],
+            ],
+        ];
+
+        $configuration['services'][NotRecoverableCommandHandler::class] = [
             'tags' => [
                 ['name' => 'command_handler', 'method' => 'handle'],
             ],
@@ -192,14 +216,14 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
             'command-bus:consume-commands',
         ]);
 
-        usleep(200000);
+        usleep(500000);
 
         $promise1 = $this
             ->getCommandBus()
             ->execute(new ChangeAThing('thing'));
 
         await($promise1, $this->getLoop());
-        usleep(200000);
+        usleep(500000);
 
         $promises = [];
         $promises[] = $this
@@ -211,11 +235,75 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
             ->execute(new ChangeYetAnotherThing('thing'));
 
         awaitAll($promises, $this->getLoop());
-        usleep(200000);
+        usleep(500000);
         $output = $process->getOutput();
         $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAThing", $output);
         $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
         $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
+        $process->stop();
+    }
+
+    public function testThrowException()
+    {
+        $this->resetInfrastructure();
+
+        $process = $this->runAsyncCommand([
+            'command-bus:consume-commands',
+        ]);
+
+        usleep(500000);
+
+        $promise = $this
+            ->getCommandBus()
+            ->execute(new ThrowException());
+
+        await($promise, $this->getLoop());
+        usleep(500000);
+        $output = $process->getOutput();
+        $this->assertTrue(substr_count($output, 'Rejected') > 1);
+        $process->stop();
+    }
+
+    public function testReturnRejectedPromise()
+    {
+        $this->resetInfrastructure();
+
+        $process = $this->runAsyncCommand([
+            'command-bus:consume-commands',
+        ]);
+
+        usleep(500000);
+
+        $promise = $this
+            ->getCommandBus()
+            ->execute(new RejectException());
+
+        await($promise, $this->getLoop());
+        usleep(500000);
+        $output = $process->getOutput();
+        $this->assertTrue(substr_count($output, 'Rejected') > 1);
+        $process->stop();
+    }
+
+    public function testNoRecoverableCommand()
+    {
+        $this->resetInfrastructure();
+
+        $process = $this->runAsyncCommand([
+            'command-bus:consume-commands',
+        ]);
+
+        usleep(500000);
+
+        $promise = $this
+            ->getCommandBus()
+            ->execute(new NotRecoverableCommand());
+
+        await($promise, $this->getLoop());
+        usleep(500000);
+        $output = $process->getOutput();
+        $this->assertTrue(1 === substr_count($output, 'Rejected'));
+        $this->assertStringContainsString("\033[01;31mRejected\033[0m NotRecoverableCommand", $output);
         $process->stop();
     }
 
@@ -274,7 +362,10 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
             usleep(100000);
         }
 
-        return $process->getOutput();
+        $output = $process->getOutput();
+        $process->stop();
+
+        return $output;
     }
 
     /**
