@@ -17,6 +17,7 @@ namespace Drift\CommandBus\Async;
 
 use function Clue\React\Block\await;
 use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Bus\NonRecoverableCommand;
 use Drift\CommandBus\Console\CommandBusHeaderMessage;
 use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
@@ -233,12 +234,19 @@ SQL
                             return true;
                         }
 
+                        $command = unserialize(stripslashes($message['payload']));
+
                         return $this->executeCommand(
                             $bus,
-                            unserialize(stripslashes($message['payload'])),
+                            $command,
                             $outputPrinter,
                             function () {},
-                            function () {},
+                            function () use ($command) {
+                                $shouldRecover = !$command instanceof NonRecoverableCommand;
+                                if ($shouldRecover) {
+                                    return $this->enqueue($command);
+                                }
+                            },
                             function () use (&$forced) {
                                 $this
                                     ->loop
@@ -279,13 +287,19 @@ SQL
                         return true;
                     }
 
+                    $command = unserialize(stripslashes($message['payload']));
+
                     return $this->executeCommand(
                         $bus,
-                        unserialize(stripslashes($message['payload'])),
+                        $command,
                         $outputPrinter,
                         function () {
                         },
-                        function () {
+                        function () use ($command) {
+                            $shouldRecover = !$command instanceof NonRecoverableCommand;
+                            if ($shouldRecover) {
+                                return $this->enqueue($command);
+                            }
                         },
                         function () {
                             return false;

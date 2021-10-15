@@ -17,6 +17,7 @@ namespace Drift\CommandBus\Bus;
 
 use Drift\CommandBus\Exception\InvalidCommandException;
 use React\Promise\PromiseInterface;
+use function React\Promise\reject;
 
 /**
  * Class CommandBus.
@@ -34,10 +35,14 @@ class CommandBus extends Bus
      */
     public function execute($command): PromiseInterface
     {
-        return $this
-            ->handle($command)
-            ->then(function () {
-                return;
-            });
+        try {
+            return $this
+                ->handle($command)
+                ->then(function () {
+                    return;
+                });
+        } catch (\Exception $exception) {
+            return reject($exception);
+        }
     }
 }

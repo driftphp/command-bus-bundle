@@ -18,6 +18,7 @@ namespace Drift\CommandBus\Async;
 use function Clue\React\Block\await;
 use Clue\React\Redis\Client;
 use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Bus\NonRecoverableCommand;
 use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
 use Drift\Console\OutputPrinter;
@@ -148,12 +149,19 @@ class RedisAdapter extends AsyncAdapter
                 ->redis
                 ->blPop($this->key, 0)
                 ->then(function (array $job) use ($bus, $outputPrinter) {
+                    $command = unserialize($job[1]);
+
                     return $this->executeCommand(
                         $bus,
-                        unserialize($job[1]),
+                        $command,
                         $outputPrinter,
                         function () {},
-                        function () {},
+                        function () use ($command) {
+                            $shouldRecover = !$command instanceof NonRecoverableCommand;
+                            if ($shouldRecover) {
+                                return $this->enqueue($command);
+                            }
+                        },
                         function () {
                             return true;
                         }

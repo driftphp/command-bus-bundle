@@ -59,8 +59,6 @@ class DefaultAsyncTest extends BusFunctionalTest
 
     /**
      * Test buses are being built.
-     *
-     * @group async
      */
     public function testCommandBusMiddlewares()
     {

@@ -17,6 +17,7 @@ namespace Drift\CommandBus\Bus;
 
 use Drift\CommandBus\Exception\InvalidCommandException;
 use React\Promise\PromiseInterface;
+use function React\Promise\reject;
 
 /**
  * Class QueryBus.
@@ -34,6 +35,10 @@ class QueryBus extends Bus
      */
     public function ask($query): PromiseInterface
     {
-        return $this->handle($query);
+        try {
+            return $this->handle($query);
+        } catch (\Exception $exception) {
+            return reject($exception);
+        }
     }
 }

@@ -19,6 +19,7 @@ use Bunny\Channel;
 use Bunny\Exception\ClientException;
 use Bunny\Message;
 use Drift\CommandBus\Bus\CommandBus;
+use Drift\CommandBus\Bus\NonRecoverableCommand;
 use Drift\CommandBus\Console\CommandBusHeaderMessage;
 use Drift\CommandBus\Console\CommandBusLineMessage;
 use Drift\CommandBus\Exception\InvalidCommandException;
@@ -179,16 +180,20 @@ class AMQPAdapter extends AsyncAdapter
                 return $this
                     ->channel
                     ->consume(function (Message $message, Channel $channel) use ($bus, $outputPrinter, &$forced) {
+                        $command = unserialize($message->content);
+
                         return $this
                             ->executeCommand(
                                 $bus,
-                                unserialize($message->content),
+                                $command,
                                 $outputPrinter,
-                                function () use ($message, $channel) {
+                                function () use ($channel, $message) {
                                     return $channel->ack($message);
                                 },
-                                function () use ($message, $channel) {
-                                    return $channel->nack($message);
+                                function () use ($command, $channel, $message) {
+                                    return $command instanceof NonRecoverableCommand
+                                        ? $channel->ack($message)
+                                        : $channel->nack($message);
                                 },
                                 function () use (&$forced) {
                                     $forced = true;
