@@ -34,6 +34,7 @@ use Drift\CommandBus\Exception\InvalidMiddlewareException;
 use Drift\CommandBus\Middleware\AsyncMiddleware;
 use Drift\CommandBus\Middleware\HandlerMiddleware;
 use Drift\CommandBus\Middleware\Middleware;
+use Drift\EventBus\Subscriber\EventBusSubscriber;
 use Drift\Postgresql\DependencyInjection\CompilerPass\PostgresqlCompilerPass;
 use Drift\Redis\DependencyInjection\CompilerPass\RedisCompilerPass;
 use Exception;
@@ -42,6 +43,7 @@ use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -424,7 +426,7 @@ class BusCompilerPass implements CompilerPassInterface
         $consumer = new Definition(CommandConsumerCommand::class, [
             new Reference(AsyncAdapter::class),
             new Reference('drift.inline_command_bus'),
-            new Reference('reactphp.event_loop'),
+            new Reference(EventBusSubscriber::class, ContainerInterface::NULL_ON_INVALID_REFERENCE),
         ]);
 
         $consumer->addTag('console.command', [

@@ -18,7 +18,8 @@ namespace Drift\CommandBus\Console;
 use Drift\CommandBus\Async\AsyncAdapter;
 use Drift\CommandBus\Bus\InlineCommandBus;
 use Drift\Console\OutputPrinter;
-use React\EventLoop\LoopInterface;
+use Drift\EventBus\Bus\EventBus;
+use Drift\EventBus\Subscriber\EventBusSubscriber;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -31,22 +32,25 @@ class CommandConsumerCommand extends Command
 {
     private AsyncAdapter $asyncAdapter;
     private InlineCommandBus $commandBus;
+    private ?EventBusSubscriber $eventBusSubscriber;
 
     /**
      * ConsumeCommand constructor.
      *
-     * @param AsyncAdapter     $asyncAdapter
-     * @param InlineCommandBus $commandBus
-     * @param LoopInterface    $loop
+     * @param AsyncAdapter            $asyncAdapter
+     * @param InlineCommandBus        $commandBus
+     * @param EventBusSubscriber|null $eventBusSubscriber
      */
     public function __construct(
         AsyncAdapter $asyncAdapter,
-        InlineCommandBus $commandBus
+        InlineCommandBus $commandBus,
+        ?EventBusSubscriber $eventBusSubscriber
     ) {
         parent::__construct();
 
         $this->asyncAdapter = $asyncAdapter;
         $this->commandBus = $commandBus;
+        $this->eventBusSubscriber = $eventBusSubscriber;
     }
 
     /**
@@ -62,6 +66,18 @@ class CommandConsumerCommand extends Command
             'Number of jobs to handle before dying',
             0
         );
+
+        /*
+         * If we have the EventBus loaded, we can add listeners as well
+         */
+        if (class_exists(EventBus::class)) {
+            $this->addOption(
+                'exchange',
+                null,
+                InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
+                'Exchanges to listen'
+            );
+        }
     }
 
     /**
@@ -82,6 +98,21 @@ class CommandConsumerCommand extends Command
         (new CommandBusHeaderMessage('', 'Using adapter '.$adapterName))->print($outputPrinter);
         (new CommandBusHeaderMessage('', 'Started listening...'))->print($outputPrinter);
 
+        $exchanges = self::buildQueueArray($input);
+        if (
+            class_exists(EventBusSubscriber::class) &&
+            !empty($exchanges) &&
+            !is_null($this->eventBusSubscriber)
+        ) {
+            (new CommandBusHeaderMessage('', 'Kernel connected to exchanges.'))->print($outputPrinter);
+            $this
+                ->eventBusSubscriber
+                ->subscribeToExchanges(
+                    $exchanges,
+                    $outputPrinter
+                );
+        }
+
         $this
             ->asyncAdapter
             ->consume(
@@ -91,5 +122,27 @@ class CommandConsumerCommand extends Command
             );
 
         return 0;
+    }
+
+    /**
+     * Build queue architecture from array of strings.
+     *
+     * @param InputInterface $input
+     *
+     * @return array
+     */
+    private static function buildQueueArray(InputInterface $input): array
+    {
+        if (!$input->hasOption('exchange')) {
+            return [];
+        }
+
+        $exchanges = [];
+        foreach ($input->getOption('exchange') as $exchange) {
+            $exchangeParts = explode(':', $exchange, 2);
+            $exchanges[$exchangeParts[0]] = $exchangeParts[1] ?? '';
+        }
+
+        return $exchanges;
     }
 }
