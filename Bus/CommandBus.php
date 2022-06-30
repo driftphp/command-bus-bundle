@@ -39,9 +39,8 @@ class CommandBus extends Bus
             return $this
                 ->handle($command)
                 ->then(function () {
-                    return;
                 });
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             return reject($exception);
         }
     }

@@ -150,7 +150,8 @@ abstract class AsyncAdapter
 
                         return null;
                     });
-            }, function (\Exception $exception) use ($from, $outputPrinter, $command, $ok, $ko) {
+            })
+            ->otherwise(function (\Throwable $exception) use ($from, $outputPrinter, $command, $ok, $ko) {
                 $to = microtime(true);
                 $ignorable = $exception instanceof MissingHandlerException;
 
@@ -162,16 +163,10 @@ abstract class AsyncAdapter
                         : CommandConsumedLineMessage::REJECTED
                 ))->print($outputPrinter);
 
-                return (
-                    $ignorable
-                        ? (resolve())
-                            ->then(function () use ($ok) {
-                                return $ok();
-                            })
-                        : (resolve())
-                            ->then(function () use ($ko) {
-                                return $ko();
-                            })
+                return
+                    (resolve($ignorable
+                        ? $ok()
+                        : $ko())
                     )
                     ->then(function () {
                         return null;
