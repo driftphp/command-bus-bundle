@@ -24,12 +24,14 @@ use Drift\CommandBus\Tests\Command\ChangeBThing;
 use Drift\CommandBus\Tests\Command\ChangeYetAnotherThing;
 use Drift\CommandBus\Tests\Command\NotRecoverableCommand;
 use Drift\CommandBus\Tests\Command\RejectException;
+use Drift\CommandBus\Tests\Command\ThrowError;
 use Drift\CommandBus\Tests\Command\ThrowException;
 use Drift\CommandBus\Tests\CommandHandler\ChangeAnotherThingHandler;
 use Drift\CommandBus\Tests\CommandHandler\ChangeAThingHandler;
 use Drift\CommandBus\Tests\CommandHandler\ChangeYetAnotherThingHandler;
 use Drift\CommandBus\Tests\CommandHandler\NotRecoverableCommandHandler;
 use Drift\CommandBus\Tests\CommandHandler\RejectExceptionHandler;
+use Drift\CommandBus\Tests\CommandHandler\ThrowErrorHandler;
 use Drift\CommandBus\Tests\CommandHandler\ThrowExceptionHandler;
 use Drift\CommandBus\Tests\Context;
 use Drift\CommandBus\Tests\Middleware\Middleware1;
@@ -81,6 +83,12 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         ];
 
         $configuration['services'][NotRecoverableCommandHandler::class] = [
+            'tags' => [
+                ['name' => 'command_handler', 'method' => 'handle'],
+            ],
+        ];
+
+        $configuration['services'][ThrowErrorHandler::class] = [
             'tags' => [
                 ['name' => 'command_handler', 'method' => 'handle'],
             ],
@@ -285,6 +293,11 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         $process->stop();
     }
 
+    /**
+     * @return void
+     *
+     * @throws \Drift\CommandBus\Exception\InvalidCommandException
+     */
     public function testNoRecoverableCommand()
     {
         $this->resetInfrastructure();
@@ -304,6 +317,33 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         $output = $process->getOutput();
         $this->assertTrue(1 === substr_count($output, 'Rejected'));
         $this->assertStringContainsString("\033[01;31mRejected\033[0m NotRecoverableCommand", $output);
+        $process->stop();
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \Drift\CommandBus\Exception\InvalidCommandException
+     */
+    public function testErrorIsThrownInHandler()
+    {
+        $this->resetInfrastructure();
+
+        $process = $this->runAsyncCommand([
+            'command-bus:consume-commands',
+        ]);
+
+        usleep(500000);
+
+        $promises[] = $this
+            ->getCommandBus()
+            ->execute(new ThrowError());
+
+        awaitAll($promises, $this->getLoop());
+        usleep(500000);
+        $output = $process->getOutput();
+        $this->assertTrue(1 === substr_count($output, 'Rejected'));
+        $this->assertStringContainsString("\033[01;31mRejected\033[0m ThrowError", $output);
         $process->stop();
     }
 

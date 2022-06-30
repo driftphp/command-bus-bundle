@@ -64,6 +64,11 @@ class InMemoryAsyncTest extends AsyncAdapterTest
         $this->markTestSkipped('InMemory adapter should not fire this test');
     }
 
+    public function testErrorIsThrownInHandler()
+    {
+        $this->markTestSkipped('InMemory adapter should not fire this test');
+    }
+
     /**
      * Consume commands.
      *
