@@ -93,13 +93,15 @@ abstract class AsyncAdapter
      * @param CommandBus    $bus
      * @param int           $limit
      * @param OutputPrinter $outputPrinter
+     * @param Prefetch      $prefetch
      *
      * @throws InvalidCommandException
      */
     abstract public function consume(
         CommandBus $bus,
         int $limit,
-        OutputPrinter $outputPrinter
+        OutputPrinter $outputPrinter,
+        Prefetch $prefetch
     );
 
     /**

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Drift\CommandBus\Console;
 
 use Drift\CommandBus\Async\AsyncAdapter;
+use Drift\CommandBus\Async\Prefetch;
 use Drift\CommandBus\Bus\InlineCommandBus;
 use Drift\Console\OutputPrinter;
 use Drift\EventBus\Bus\EventBus;
@@ -78,6 +79,10 @@ class CommandConsumerCommand extends Command
                 'Exchanges to listen'
             );
         }
+
+        $this->addOption('prefetch-size', null, InputOption::VALUE_OPTIONAL, 'Prefetch size. Only for AMQP', 0);
+        $this->addOption('prefetch-count', null, InputOption::VALUE_OPTIONAL, 'Prefetch count. Only for AMQP', 1);
+        $this->addOption('is-prefetch-local', null, InputOption::VALUE_NONE, 'Prefetch is global. Only for AMQP');
     }
 
     /**
@@ -113,12 +118,19 @@ class CommandConsumerCommand extends Command
                 );
         }
 
+        $prefetch = new Prefetch(
+            \intval($input->getOption('prefetch-size')),
+            \intval($input->getOption('prefetch-count')),
+            !\boolval($input->getOption('is-prefetch-local')),
+        );
+
         $this
             ->asyncAdapter
             ->consume(
                 $this->commandBus,
                 \intval($input->getOption('limit')),
-                $outputPrinter
+                $outputPrinter,
+                $prefetch
             );
 
         return 0;
