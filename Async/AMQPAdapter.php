@@ -162,20 +162,22 @@ class AMQPAdapter extends AsyncAdapter
      * @param CommandBus    $bus
      * @param int           $limit
      * @param OutputPrinter $outputPrinter
+     * @param Prefetch      $prefetch
      *
      * @throws InvalidCommandException
      */
     public function consume(
         CommandBus $bus,
         int $limit,
-        OutputPrinter $outputPrinter
+        OutputPrinter $outputPrinter,
+        Prefetch $prefetch
     ) {
         $this->resetIterations($limit);
         $forced = false;
 
         $this
             ->channel
-            ->qos(0, 1, true)
+            ->qos($prefetch->getPrefetchSize(), $prefetch->getPrefetchCount(), $prefetch->isGlobal())
             ->then(function () use ($bus, $outputPrinter, &$forced) {
                 return $this
                     ->channel
