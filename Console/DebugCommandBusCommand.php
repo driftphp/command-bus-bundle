@@ -22,6 +22,7 @@ use Drift\CommandBus\Bus\QueryBus;
 use Drift\CommandBus\Middleware\DiscriminableMiddleware;
 use Drift\CommandBus\Middleware\HandlerMiddleware;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -85,6 +86,8 @@ class DebugCommandBusCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $outputFormatter = $output->getFormatter();
+        $outputFormatter->setStyle('performance', new OutputFormatterStyle('gray'));
         $output->writeln('');
         $this->printBus('Query', $this->queryBus, $output);
         $this->printBus('Command', $this->commandBus, $output);

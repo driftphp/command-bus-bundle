@@ -166,8 +166,8 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         $this->assertFalse(file_exists('/tmp/a.thing'));
         $output = $this->consumeCommands(1);
 
-        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAThing", $output);
-        $this->assertStringNotContainsString("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
+        $this->assertStringContainsString("\033[01;32m[CON]\033[0m ChangeAThing", $output);
+        $this->assertStringNotContainsString("\033[01;32m[CON]\033[0m ChangeAnotherThing", $output);
         if ($this instanceof InMemoryAsyncTest) {
             $this->assertTrue($this->getContextValue('middleware1'));
         }
@@ -175,9 +175,9 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         $this->assertTrue(file_exists('/tmp/a.thing'));
         $output2 = $this->consumeCommands(1);
 
-        $this->assertStringNotContainsString("\033[01;32mConsumed\033[0m ChangeAThing", $output2);
-        $this->assertStringContainsString("\033[01;36mIgnored \033[0m ChangeBThing", $output2);
-        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output2);
+        $this->assertStringNotContainsString("\033[01;32m[CON]\033[0m ChangeAThing", $output2);
+        $this->assertStringContainsString("\033[01;36m[IGN]\033[0m ChangeBThing", $output2);
+        $this->assertStringContainsString("\033[01;32m[CON]\033[0m ChangeAnotherThing", $output2);
     }
 
     /**
@@ -203,14 +203,14 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
 
         $output = $this->consumeCommands(2);
 
-        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAThing", $output);
-        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
-        $this->assertStringNotContainsString("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
+        $this->assertStringContainsString("\033[01;32m[CON]\033[0m ChangeAThing", $output);
+        $this->assertStringContainsString("\033[01;32m[CON]\033[0m ChangeAnotherThing", $output);
+        $this->assertStringNotContainsString("\033[01;32m[CON]\033[0m ChangeYetAnotherThing", $output);
         $output = $this->consumeCommands(1);
 
-        $this->assertStringNotContainsString("\033[01;32mConsumed\033[0m ChangeAThing", $output);
-        $this->assertStringNotContainsString("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
-        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
+        $this->assertStringNotContainsString("\033[01;32m[CON]\033[0m ChangeAThing", $output);
+        $this->assertStringNotContainsString("\033[01;32m[CON]\033[0m ChangeAnotherThing", $output);
+        $this->assertStringContainsString("\033[01;32m[CON]\033[0m ChangeYetAnotherThing", $output);
     }
 
     /**
@@ -245,9 +245,9 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         awaitAll($promises, $this->getLoop());
         usleep(500000);
         $output = $process->getOutput();
-        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAThing", $output);
-        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeAnotherThing", $output);
-        $this->assertStringContainsString("\033[01;32mConsumed\033[0m ChangeYetAnotherThing", $output);
+        $this->assertStringContainsString("\033[01;32m[CON]\033[0m ChangeAThing", $output);
+        $this->assertStringContainsString("\033[01;32m[CON]\033[0m ChangeAnotherThing", $output);
+        $this->assertStringContainsString("\033[01;32m[CON]\033[0m ChangeYetAnotherThing", $output);
         $process->stop();
     }
 
@@ -268,7 +268,7 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         await($promise, $this->getLoop());
         usleep(500000);
         $output = $process->getOutput();
-        $this->assertTrue(substr_count($output, 'Rejected') > 1);
+        $this->assertTrue(substr_count($output, '[REJ]') > 1);
         $process->stop();
     }
 
@@ -289,7 +289,7 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         await($promise, $this->getLoop());
         usleep(500000);
         $output = $process->getOutput();
-        $this->assertTrue(substr_count($output, 'Rejected') > 1);
+        $this->assertTrue(substr_count($output, '[REJ]') > 1);
         $process->stop();
     }
 
@@ -315,8 +315,8 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         await($promise, $this->getLoop());
         usleep(500000);
         $output = $process->getOutput();
-        $this->assertTrue(1 === substr_count($output, 'Rejected'));
-        $this->assertStringContainsString("\033[01;31mRejected\033[0m NotRecoverableCommand", $output);
+        $this->assertTrue(1 === substr_count($output, '[REJ]'));
+        $this->assertStringContainsString("\033[01;31m[REJ]\033[0m NotRecoverableCommand", $output);
         $process->stop();
     }
 
@@ -342,8 +342,8 @@ abstract class AsyncAdapterTest extends BusFunctionalTest
         awaitAll($promises, $this->getLoop());
         usleep(500000);
         $output = $process->getOutput();
-        $this->assertTrue(1 === substr_count($output, 'Rejected'));
-        $this->assertStringContainsString("\033[01;31mRejected\033[0m ThrowError", $output);
+        $this->assertTrue(1 === substr_count($output, '[REJ]'));
+        $this->assertStringContainsString("\033[01;31m[REJ]\033[0m ThrowError", $output);
         $process->stop();
     }
 

@@ -210,7 +210,7 @@ class AMQPAdapter extends AsyncAdapter
             });
 
         EventLoopUtils::runLoop($this->loop, 2, function ($iterationsMissing) use ($outputPrinter) {
-            (new CommandBusHeaderMessage('', 'EventLoop stopped. This consumer will run it '.$iterationsMissing.' more times.'))->print($outputPrinter);
+            (new CommandBusHeaderMessage('EventLoop stopped. This consumer will run it '.$iterationsMissing.' more times.'))->print($outputPrinter);
         }, $forced);
     }
 }

@@ -18,8 +18,11 @@ namespace Drift\CommandBus\Console;
 use Clue\React\Block;
 use Drift\CommandBus\Async\AsyncAdapter;
 use Drift\Console\OutputPrinter;
+use Drift\Server\Console\Style\Muted;
+use Drift\Server\Console\Style\Purple;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -74,17 +77,19 @@ class InfrastructureCheckCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $outputFormatter = $output->getFormatter();
+        $outputFormatter->setStyle('performance', new OutputFormatterStyle('gray'));
         $outputPrinter = new OutputPrinter($output, false, false);
         $adapterName = $this->asyncAdapter->getName();
-        (new CommandBusHeaderMessage('', 'Started checking infrastructure...'))->print($outputPrinter);
-        (new CommandBusHeaderMessage('', 'Using adapter '.$adapterName))->print($outputPrinter);
+        (new CommandBusHeaderMessage('Started checking infrastructure...'))->print($outputPrinter);
+        (new CommandBusHeaderMessage('Using adapter '.$adapterName))->print($outputPrinter);
 
         $promise = $this
             ->asyncAdapter
             ->checkInfrastructure($outputPrinter);
 
         Block\await($promise, $this->loop);
-        (new CommandBusHeaderMessage('', 'Infrastructure checked'))->print($outputPrinter);
+        (new CommandBusHeaderMessage('Infrastructure checked'))->print($outputPrinter);
 
         return 0;
     }

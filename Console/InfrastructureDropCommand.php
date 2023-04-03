@@ -20,6 +20,7 @@ use Drift\CommandBus\Async\AsyncAdapter;
 use Drift\Console\OutputPrinter;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -82,22 +83,24 @@ class InfrastructureDropCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $outputPrinter = new OutputPrinter($output, false, false);
+        $outputFormatter = $output->getFormatter();
+        $outputFormatter->setStyle('performance', new OutputFormatterStyle('gray'));
         if (!$input->getOption('force')) {
-            (new CommandBusHeaderMessage('', 'Please, use the flag --force'))->print($outputPrinter);
+            (new CommandBusHeaderMessage('Please, use the flag --force'))->print($outputPrinter);
 
             return 1;
         }
 
         $adapterName = $this->asyncAdapter->getName();
-        (new CommandBusHeaderMessage('', 'Started dropping infrastructure...'))->print($outputPrinter);
-        (new CommandBusHeaderMessage('', 'Using adapter '.$adapterName))->print($outputPrinter);
+        (new CommandBusHeaderMessage('Started dropping infrastructure...'))->print($outputPrinter);
+        (new CommandBusHeaderMessage('Using adapter '.$adapterName))->print($outputPrinter);
 
         $promise = $this
             ->asyncAdapter
             ->dropInfrastructure($outputPrinter);
 
         Block\await($promise, $this->loop);
-        (new CommandBusHeaderMessage('', 'Infrastructure dropped'))->print($outputPrinter);
+        (new CommandBusHeaderMessage('Infrastructure dropped'))->print($outputPrinter);
 
         return 0;
     }

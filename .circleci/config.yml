@@ -1,8 +1,8 @@
 version: 2
 jobs:
-  test-php74:
+  test-php80:
     docker:
-      - image: circleci/php:7.4-cli
+      - image: circleci/php:8.0-cli
       - image: redis
       - image: rabbitmq
       - image: postgres:alpine
@@ -16,14 +16,14 @@ jobs:
       - checkout
 
       - run:
-          name: Run tests / Symfony 4^4
+          name: Run tests / Symfony 5^0
           command: |
-            composer update -n --prefer-dist --prefer-lowest --no-suggest
-            sh .circleci/start.sh
+            composer update -n --prefer-dist --no-suggest
+            sh .circleci/start_base_testsuite.sh
 
-  test-php80:
+  test-php81:
     docker:
-      - image: circleci/php:8.0-cli
+      - image: cimg/php:8.1
       - image: redis
       - image: rabbitmq
       - image: postgres:alpine
@@ -46,5 +46,5 @@ workflows:
   version: 2
   test:
     jobs:
-      - test-php74
       - test-php80
+      - test-php81
