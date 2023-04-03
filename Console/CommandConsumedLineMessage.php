@@ -20,26 +20,26 @@ use Drift\Console\OutputPrinter;
 /**
  * Class ConsumerLineMessage.
  */
-final class CommandConsumedLineMessage
+final class CommandConsumedLineMessage extends CommandMessage
 {
     /**
      * @var string
      */
-    const CONSUMED = 'Consumed';
+    const CONSUMED = '[CON]';
 
     /**
      * @var string
      */
-    const IGNORED = 'Ignored ';
+    const IGNORED = '[IGN]';
 
     /**
      * @var string
      */
-    const REJECTED = 'Rejected';
+    const REJECTED = '[REJ]';
 
-    private $class;
-    private $elapsedTime;
-    private $status;
+    private string $class;
+    private string $elapsedTime;
+    private string $status;
 
     /**
      * ConsumerMessage constructor.
@@ -72,9 +72,8 @@ final class CommandConsumedLineMessage
             $color = '31';
         }
 
-        $outputPrinter->print("\033[01;{$color}m{$this->status}\033[0m");
-        $outputPrinter->print(" {$this->class} ");
-        $outputPrinter->print("(\e[00;37m".$this->elapsedTime.' | '.((int) (memory_get_usage() / 1000000))." MB\e[0m)");
+        $performance = $this->styledPerformance($this->elapsedTime);
+        $outputPrinter->print("\033[01;32mBUS\033[0m $performance \033[01;{$color}m{$this->status}\033[0m {$this->class}");
         $outputPrinter->printLine();
     }
 

@@ -22,6 +22,7 @@ use Drift\Console\OutputPrinter;
 use Drift\EventBus\Bus\EventBus;
 use Drift\EventBus\Subscriber\EventBusSubscriber;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -97,11 +98,13 @@ class CommandConsumerCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $outputFormatter = $output->getFormatter();
+        $outputFormatter->setStyle('performance', new OutputFormatterStyle('gray'));
         $outputPrinter = new OutputPrinter($output, false, false);
         $adapterName = $this->asyncAdapter->getName();
-        (new CommandBusHeaderMessage('', 'Consumer built'))->print($outputPrinter);
-        (new CommandBusHeaderMessage('', 'Using adapter '.$adapterName))->print($outputPrinter);
-        (new CommandBusHeaderMessage('', 'Started listening...'))->print($outputPrinter);
+        (new CommandBusHeaderMessage('Consumer built'))->print($outputPrinter);
+        (new CommandBusHeaderMessage('Using adapter '.$adapterName))->print($outputPrinter);
+        (new CommandBusHeaderMessage('Started listening...'))->print($outputPrinter);
 
         $exchanges = self::buildQueueArray($input);
         if (
@@ -109,7 +112,7 @@ class CommandConsumerCommand extends Command
             !empty($exchanges) &&
             !is_null($this->eventBusSubscriber)
         ) {
-            (new CommandBusHeaderMessage('', 'Kernel connected to exchanges.'))->print($outputPrinter);
+            (new CommandBusHeaderMessage('Kernel connected to exchanges.'))->print($outputPrinter);
             $this
                 ->eventBusSubscriber
                 ->subscribeToExchanges(

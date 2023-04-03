@@ -20,22 +20,17 @@ use Drift\Console\OutputPrinter;
 /**
  * Class ConsumerHeaderMessage.
  */
-final class CommandBusHeaderMessage
+final class CommandBusHeaderMessage extends CommandMessage
 {
-    private $elapsedTime;
-    private $message;
+    private string $message;
 
     /**
      * ConsumerMessage constructor.
      *
-     * @param string $elapsedTime
      * @param string $message
      */
-    public function __construct(
-        string $elapsedTime,
-        string $message
-    ) {
-        $this->elapsedTime = $elapsedTime;
+    public function __construct(string $message)
+    {
         $this->message = $message;
     }
 
@@ -46,11 +41,7 @@ final class CommandBusHeaderMessage
      */
     public function print(OutputPrinter $outputPrinter)
     {
-        $color = '32';
-
-        $outputPrinter->print("\033[01;{$color}mBUS\033[0m ");
-        $outputPrinter->print("(\e[00;37m".$this->elapsedTime.' | '.((int) (memory_get_usage() / 1000000))." MB\e[0m)");
-        $outputPrinter->print(" {$this->message}");
+        $outputPrinter->print("\033[01;32mBUS\033[0m {$this->message}");
         $outputPrinter->printLine();
     }
 }

@@ -263,7 +263,7 @@ SQL
             });
 
         EventLoopUtils::runLoop($this->loop, 2, function ($iterationsMissing) use ($outputPrinter) {
-            (new CommandBusHeaderMessage('', 'EventLoop stopped. This consumer will run it '.$iterationsMissing.' more times.'))->print($outputPrinter);
+            (new CommandBusHeaderMessage('EventLoop stopped. This consumer will run it '.$iterationsMissing.' more times.'))->print($outputPrinter);
         }, $forced);
     }
 
@@ -339,23 +339,3 @@ SQL
             ->toPromise();
     }
 }
-
-/*
- *
- *
-DROP TABLE IF EXISTS commands;
-CREATE TABLE commands (id VARCHAR, added_at TIMESTAMP, payload TEXT);
-SELECT * FROM commands;
-
-CREATE OR REPLACE FUNCTION notify_commands() RETURNS TRIGGER AS $$
-    BEGIN
-        PERFORM pg_notify('commands', '1');
-        RETURN NEW;
-    END;
-$$ LANGUAGE plpgsql;
-DROP TRIGGER IF EXISTS notify_trigger ON commands;
-CREATE TRIGGER notify_trigger
-AFTER INSERT
-ON commands
-FOR EACH ROW EXECUTE PROCEDURE notify_commands();
-*/
